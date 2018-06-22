@@ -31,6 +31,8 @@ public class ProfilePageServletTest {
 	private HttpSession mockSession;
 	private HttpServletResponse mockResponse;
 	private RequestDispatcher mockRequestDispatcher;
+	private PersistentStorageAgent mockPersistentStorageAgent;
+	private ProfileStore fakeProfileStore;
 	
 	@Before
 	public void setup() {
@@ -44,7 +46,9 @@ public class ProfilePageServletTest {
 		mockRequestDispatcher = Mockito.mock(RequestDispatcher.class);
 		Mockito.when(mockRequest.getRequestDispatcher("/WEB-INF/view/profile.jsp"))
 			.thenReturn(mockRequestDispatcher);
-		
+
+		mockPersistentStorageAgent = Mockito.mock(PersistentStorageAgent.class);
+
 	}
 	
 	@Test
@@ -94,44 +98,28 @@ public class ProfilePageServletTest {
 		
 		Mockito.verify(mockResponse).sendRedirect("/login");
 	}
-	
+
 	@Test
 	public void testDoPost_UpdateAboutMe() throws IOException, PersistentDataStoreException, ServletException {
-		
-		Profile profile = new Profile(UUID.randomUUID(), 
-				"user", "Profile About Me");
-		
-		HashMap<String, String> profiles = new HashMap<String, String>();
-		profiles.put("user", "Profile About Me"); 
-		
-		ProfileStore store = Mockito.spy(ProfileStore.class);
-		
-		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/user");
-		Mockito.when(mockSession.getAttribute("user")).thenReturn("user");
-		
-		profileServlet.doGet(mockRequest, mockResponse);
-		
-		Mockito.when(mockRequest.getParameter("description")).thenReturn("Profile About Me changed");
-		
-		PersistentStorageAgent mockStorageAgent = Mockito.mock(PersistentStorageAgent.class);
-		Mockito.when(mockStorageAgent.loadProfiles()).thenReturn(profiles);
-		ProfileStore mockProfileStore = Mockito.mock(ProfileStore.getTestInstance(mockStorageAgent).getClass());
-		Mockito.when(mockProfileStore.getProfileText("user")).thenReturn("Profile About Me");
-		
-		store.setProfiles(profiles);
+		fakeProfileStore = ProfileStore.getTestInstance(mockPersistentStorageAgent);
 
-		//mockProfileStore.setProfiles(profiles);
-		
-		profileServlet.setProfileStore(store);
-		
-		// Assert.assertEquals(mockRequest.getParameter("aboutMe"), "Profile About Me");
-		Mockito.when(mockRequest.getParameter("aboutMe")).thenReturn("Profile About Me");
+		Profile profile = new Profile(UUID.randomUUID(), "vasu", "Google Engineer");
+
+		fakeProfileStore.addProfile(profile);
+		profileServlet.setProfileStore(fakeProfileStore);
+
+		Assert.assertEquals(fakeProfileStore.getProfileText("vasu"), "Google Engineer");
+
+		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/vasu");
+		// the description parameter holds the text the user is trying to update their 'About Me' to.
+		Mockito.when(mockRequest.getParameter("description"))
+				.thenReturn("Google Engineer and CodeU Project Advisor");
+
 		profileServlet.doPost(mockRequest, mockResponse);
-		
-		Mockito.verify(mockResponse).sendRedirect("/profile/user");
-		Mockito.verify(mockRequest).getParameter("aboutMe").equals("Profile About Me changed");
+
+		Assert.assertEquals(fakeProfileStore.getProfileText("vasu"),
+				"Google Engineer and CodeU Project Advisor");
+		Mockito.verify(mockResponse).sendRedirect("/profile/vasu");
 	}
-	
-	
-	
+
 }
