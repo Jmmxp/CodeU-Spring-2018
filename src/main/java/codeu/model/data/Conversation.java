@@ -14,7 +14,11 @@
 
 package codeu.model.data;
 
+import codeu.model.store.basic.UserStore;
+
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,6 +30,7 @@ public class Conversation {
   public final UUID owner;
   public final Instant creation;
   public final String title;
+  public final List<User> users;
 
   /**
    * Constructs a new Conversation.
@@ -40,6 +45,7 @@ public class Conversation {
     this.owner = owner;
     this.creation = creation;
     this.title = title;
+    this.users = new ArrayList<>();
   }
 
   /** Returns the ID of this Conversation. */
@@ -61,4 +67,36 @@ public class Conversation {
   public Instant getCreationTime() {
     return creation;
   }
+
+  /** Returns the list of users that can access and chat in this Conversation */
+  public List<User> getUsers() {
+    return users;
+  }
+
+  /** Adds a user to the user List by using their username
+   * @param username Username of the user to add
+   * @return whether or not the user was found and added into the List */
+  public boolean addUser(String username) {
+    User user = UserStore.getInstance().getUser(username);
+    if (user != null) {
+      users.add(user);
+      return true;
+    }
+
+    return false;
+  }
+
+  /** Adds a user to the user List by using their UUID
+   * @param userId UUID of the user to add
+   * @return whether or not the user was found and added into the List */
+  public boolean addUser(UUID userId) {
+    User user = UserStore.getInstance().getUser(userId);
+    if (user != null) {
+      users.add(user);
+      return true;
+    }
+
+    return false;
+  }
+
 }

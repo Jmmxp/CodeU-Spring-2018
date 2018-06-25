@@ -5,12 +5,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import codeu.model.data.Conversation;
 import codeu.model.data.Profile;
 import codeu.model.data.User;
+import codeu.model.store.basic.ConversationStore;
 import codeu.model.store.basic.ProfileStore;
 import codeu.model.store.basic.UserStore;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 /** Servlet class responsible for a user's profile page. */
@@ -64,8 +67,34 @@ public class ProfilePageServlet extends HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String user = (String) request.getSession().getAttribute("user");
 		String profileOwner = request.getRequestURI().substring("/profile/".length());
 		String text = request.getParameter("description");
+
+
+		if (request.getParameter("messageUserButton") != null) {
+			if (user == null) {
+				response.sendRedirect("/login");
+				return;
+			}
+
+			UserStore userStore = UserStore.getInstance();
+
+			UUID id = UUID.randomUUID();
+			UUID ownerId = userStore.getUser(user).getId();
+			String conversationTitle = id.toString();
+
+			Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now());
+			conversation.addUser(user);
+			conversation.addUser(profileOwner);
+
+			ConversationStore.getInstance().addConversation(conversation);
+
+			response.sendRedirect("/chat/" + conversationTitle);
+			return;
+		}
+
+
 		ProfileStore.getInstance()
 				.addProfile(new Profile(UUID.randomUUID(),
 						profileOwner,
