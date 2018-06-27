@@ -1,7 +1,10 @@
 package codeu.controller;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.RequestDispatcher;
@@ -9,6 +12,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import codeu.model.data.Conversation;
+import codeu.model.data.User;
+import codeu.model.store.basic.ConversationStore;
+import codeu.model.store.basic.UserStore;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +39,9 @@ public class ProfilePageServletTest {
 	private HttpSession mockSession;
 	private HttpServletResponse mockResponse;
 	private RequestDispatcher mockRequestDispatcher;
+	private PersistentStorageAgent mockPersistentStorageAgent;
+	private ConversationStore fakeConversationStore;
+	private UserStore fakeUserStore;
 	
 	@Before
 	public void setup() {
@@ -44,7 +55,9 @@ public class ProfilePageServletTest {
 		mockRequestDispatcher = Mockito.mock(RequestDispatcher.class);
 		Mockito.when(mockRequest.getRequestDispatcher("/WEB-INF/view/profile.jsp"))
 			.thenReturn(mockRequestDispatcher);
-		
+
+		mockPersistentStorageAgent = Mockito.mock(PersistentStorageAgent.class);
+
 	}
 	
 	@Test
@@ -94,44 +107,105 @@ public class ProfilePageServletTest {
 		
 		Mockito.verify(mockResponse).sendRedirect("/login");
 	}
-	
-//	@Test
-//	public void testDoPost_UpdateAboutMe() throws IOException, PersistentDataStoreException, ServletException {
-//
-//		Profile profile = new Profile(UUID.randomUUID(),
-//				"user", "Profile About Me");
-//
-//		HashMap<String, String> profiles = new HashMap<String, String>();
-//		profiles.put("user", "Profile About Me");
-//
-//		ProfileStore store = Mockito.spy(ProfileStore.class);
-//
-//		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/user");
-//		Mockito.when(mockSession.getAttribute("user")).thenReturn("user");
-//
-//		profileServlet.doGet(mockRequest, mockResponse);
-//
-//		Mockito.when(mockRequest.getParameter("description")).thenReturn("Profile About Me changed");
-//
-//		PersistentStorageAgent mockStorageAgent = Mockito.mock(PersistentStorageAgent.class);
-//		Mockito.when(mockStorageAgent.loadProfiles()).thenReturn(profiles);
-//		ProfileStore mockProfileStore = Mockito.mock(ProfileStore.getTestInstance(mockStorageAgent).getClass());
-//		Mockito.when(mockProfileStore.getProfileText("user")).thenReturn("Profile About Me");
-//
-//		store.setProfiles(profiles);
-//
-//		//mockProfileStore.setProfiles(profiles);
-//
-//		profileServlet.setProfileStore(store);
-//
-//		// Assert.assertEquals(mockRequest.getParameter("aboutMe"), "Profile About Me");
-//		Mockito.when(mockRequest.getParameter("aboutMe")).thenReturn("Profile About Me");
-//		profileServlet.doPost(mockRequest, mockResponse);
-//
-//		Mockito.verify(mockResponse).sendRedirect("/profile/user");
-//		Mockito.verify(mockRequest).getParameter("aboutMe").equals("Profile About Me changed");
-//	}
-	
-	
+
+	@Test
+	public void testDoPost_DirectMessageNotLoggedIn() throws IOException {
+		Mockito.when(mockRequest.getParameter("messageUserButton")).thenReturn("notNull");
+		Mockito.when(mockRequest.getSession().getAttribute("user")).thenReturn(null);
+		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/Cynthia");
+
+		profileServlet.doPost(mockRequest, mockResponse);
+
+		Mockito.verify(mockResponse).sendRedirect("/login");
+	}
+
+	@Test
+	public void testDoPost_DirectMessageExists() throws IOException {
+		// Check for the DM starting between Justin and Vasu
+		Mockito.when(mockRequest.getParameter("messageUserButton")).thenReturn("notNull");
+		Mockito.when(mockRequest.getSession().getAttribute("user")).thenReturn("Justin");
+		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/Vasu");
+
+		fakeConversationStore = ConversationStore.getTestInstance(mockPersistentStorageAgent);
+
+		// Set up the conversation between Justin and Vasu
+		User userOne = new User(UUID.randomUUID(), "Justin", "testHash", Instant.now());
+		User userTwo = new User(UUID.randomUUID(), "Vasu", "testHash2", Instant.now());
+		List<User> users = new ArrayList<>();
+		users.add(userOne);
+		users.add(userTwo);
+		Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
+				Instant.now(), users);
+
+		fakeConversationStore.addConversation(conversation);
+		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);
+
+		profileServlet.setConversationStore(fakeConversationStore);
+
+		profileServlet.doPost(mockRequest, mockResponse);
+
+		// check that there exists the same convo between the two users of the DM
+		Conversation conversationTwo = fakeConversationStore.getDirectMessageWithUsers("Justin", "Vasu");
+		Assert.assertNotNull(conversation);
+		Assert.assertEquals(conversation, conversationTwo);
+
+		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);
+
+		// double check that the two users are the only two part of the DM
+		Assert.assertEquals(conversationTwo.getNumUsers(), 2);
+		Assert.assertEquals(conversationTwo.isUserInConversation("Justin"), true);
+		Assert.assertEquals(conversationTwo.isUserInConversation("Vasu"), true);
+
+		Mockito.verify(mockResponse).sendRedirect("/chat/" + conversationTwo.getTitle());
+	}
+
+	@Test
+	public void testDoPost_DirectMessageDoesNotExist() throws IOException {
+		// Check for the DM starting between Justin and Vasu
+		Mockito.when(mockRequest.getParameter("messageUserButton")).thenReturn("notNull");
+		Mockito.when(mockRequest.getSession().getAttribute("user")).thenReturn("Justin");
+		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/Vasu");
+
+		fakeConversationStore = ConversationStore.getTestInstance(mockPersistentStorageAgent);
+		fakeUserStore = UserStore.getTestInstance(mockPersistentStorageAgent);
+
+		User userOne = new User(UUID.randomUUID(), "Justin", "testHash", Instant.now());
+		User userTwo = new User(UUID.randomUUID(), "Cynthia", "testHash2", Instant.now());
+		User userThree = new User(UUID.randomUUID(), "Vasu", "testHash3", Instant.now());
+		List<User> users = new ArrayList<>();
+		users.add(userOne);
+		users.add(userTwo);
+		Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
+				Instant.now(), users);
+
+		fakeConversationStore.addConversation(conversation);
+		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);
+
+		fakeUserStore.addUser(userOne);
+		fakeUserStore.addUser(userTwo);
+		fakeUserStore.addUser(userThree);
+		Assert.assertEquals(fakeUserStore.getNumUsers(), 3);
+
+		// check that there doesn't exist a convo between the two users of the DM
+		Assert.assertNull(fakeConversationStore.getDirectMessageWithUsers("Justin", "Vasu"));
+
+		profileServlet.setConversationStore(fakeConversationStore);
+		profileServlet.setUserStore(fakeUserStore);
+
+		profileServlet.doPost(mockRequest, mockResponse);
+
+		// check that the new DM conversation is created
+		Assert.assertEquals(fakeConversationStore.getNumConversations(), 2);
+
+		Conversation conversationTwo = fakeConversationStore.getDirectMessageWithUsers("Justin", "Vasu");
+		Assert.assertNotNull(conversationTwo);
+
+		// check that the two users are the only two part of the new DM
+		Assert.assertEquals(conversationTwo.getNumUsers(), 2);
+		Assert.assertEquals(conversationTwo.isUserInConversation("Justin"), true);
+		Assert.assertEquals(conversationTwo.isUserInConversation("Vasu"), true);
+
+		Mockito.verify(mockResponse).sendRedirect("/chat/" + conversationTwo.getTitle());
+	}
 	
 }

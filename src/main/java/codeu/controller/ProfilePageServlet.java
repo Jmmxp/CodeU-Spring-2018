@@ -14,31 +14,56 @@ import codeu.model.store.basic.UserStore;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /** Servlet class responsible for a user's profile page. */
 public class ProfilePageServlet extends HttpServlet {
 
+	/** Store class that gives access to Conversations. */
+	private ConversationStore conversationStore;
+
+	/** Store class that gives access to Profiles. */
+	private ProfileStore profileStore;
+
 	/** Store class that gives access to Users. */
-	  private ProfileStore profileStore;
+	private UserStore userStore;
 
-	  /**
-	   * Set up state for handling profile-related requests. 
-	   */
-	  @Override
-	  public void init() throws ServletException {
-	    super.init();
-	    setProfileStore(ProfileStore.getInstance());
-	  }
+	/**
+	* Set up state for handling profile-related requests.
+	*/
+	@Override
+	public void init() throws ServletException {
+		super.init();
+		setConversationStore(ConversationStore.getInstance());
+		setProfileStore(ProfileStore.getInstance());
+		setUserStore(UserStore.getInstance());
+	}
 
-	  /**
-	   * Sets the ProfileStore used by this servlet. This function provides a common setup method for use
-	   * by the test framework or the servlet's init() function.
-	   */
-	  void setProfileStore(ProfileStore profileStore) {
-	    this.profileStore = profileStore;
-	  }
+	/**
+	 * Sets the ConversationStore used by this servlet. This function provides a common setup method
+	 * for use by the test framework or the servlet's init() function.
+	 */
+	void setConversationStore(ConversationStore conversationStore) {
+		this.conversationStore = conversationStore;
+	}
+
+	/**
+	* Sets the ProfileStore used by this servlet. This function provides a common setup method for use
+	* by the test framework or the servlet's init() function.
+	*/
+	void setProfileStore(ProfileStore profileStore) {
+		this.profileStore = profileStore;
+	}
+
+	/**
+	 * Sets the UserStore used by this servlet. This function provides a common setup method for use
+	 * by the test framework or the servlet's init() function.
+	 */
+	void setUserStore(UserStore userStore) {
+		this.userStore = userStore;
+	}
 	
 	/**
 	 * This function fires when a user navigates to a profile page. It displays a
@@ -72,26 +97,30 @@ public class ProfilePageServlet extends HttpServlet {
 		String profileOwner = request.getRequestURI().substring("/profile/".length());
 		String text = request.getParameter("description");
 
+		// TODO check if the button pressed was Update Profile (add an identifier to it in jsp first)
+
 		if (request.getParameter("messageUserButton") != null) {
 			if (user == null) {
 				response.sendRedirect("/login");
 				return;
 			}
 
-			UserStore userStore = UserStore.getInstance();
-			ConversationStore conversationStore = ConversationStore.getInstance();
-
 			Conversation directMessageConversation = conversationStore.getDirectMessageWithUsers(user, profileOwner);
 			String conversationTitle;
 
 			if (directMessageConversation == null) {
 				// the DM does not exist yet, so create a new conversation for it
+				User userOne = userStore.getUser(user);
+				User userTwo = userStore.getUser(profileOwner);
+				List<User> users = new ArrayList<>();
+				users.add(userOne);
+				users.add(userTwo);
+
 				UUID id = UUID.randomUUID();
 				UUID ownerId = userStore.getUser(user).getId();
 				conversationTitle = id.toString();
-				Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now());
-				conversation.addUser(user);
-				conversation.addUser(profileOwner);
+
+				Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now(), users);
 				conversationStore.addConversation(conversation);
 			} else {
 				conversationTitle = directMessageConversation.getTitle();

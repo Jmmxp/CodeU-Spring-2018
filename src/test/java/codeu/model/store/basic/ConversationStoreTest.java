@@ -1,6 +1,7 @@
 package codeu.model.store.basic;
 
 import codeu.model.data.Conversation;
+import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,6 +71,59 @@ public class ConversationStoreTest {
 
     assertEquals(inputConversation, resultConversation);
     Mockito.verify(mockPersistentStorageAgent).writeThrough(inputConversation);
+  }
+
+  @Test
+  public void testGetNumConversations() {
+    // Note that there is already a conversation added in setup as well
+    Conversation conversationOne =
+            new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now());
+
+    conversationStore.addConversation(conversationOne);
+
+    Assert.assertEquals(conversationStore.getNumConversations(), 2);
+  }
+
+  @Test
+  public void testDeleteConversations() {
+    Conversation conversationOne =
+            new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now());
+    Conversation conversationTwo =
+            new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation2", Instant.now());
+
+    conversationStore.addConversation(conversationOne);
+    conversationStore.addConversation(conversationTwo);
+    // Note that there is already a conversation added in setup as well
+    Assert.assertEquals(conversationStore.getNumConversations(), 3);
+
+    List<Conversation> conversations = conversationStore.getAllConversations();
+
+    conversationStore.deleteAllConversations();
+
+    Mockito.verify(mockPersistentStorageAgent).deleteAllConversations(conversations);
+    Assert.assertEquals(conversationStore.getNumConversations(), 0);
+  }
+
+  @Test
+  public void testGetDirectMessageWithUsers() {
+    User userOne = new User(UUID.randomUUID(), "Justin", "testHash", Instant.now());
+    User userTwo = new User(UUID.randomUUID(), "Cynthia", "testHash2", Instant.now());
+    User userThree = new User(UUID.randomUUID(), "Vasu", "testHash3", Instant.now());
+    List<User> users = new ArrayList<>();
+    users.add(userOne);
+    users.add(userTwo);
+    Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
+            Instant.now(), users);
+
+    users.add(userThree);
+    Conversation conversationTwo = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
+            Instant.now(), users);
+
+    conversationStore.addConversation(conversation);
+    conversationStore.addConversation(conversationTwo);
+
+    Assert.assertEquals(conversationStore.getDirectMessageWithUsers("Justin", "Cynthia"), conversation);
+    Assert.assertNull(conversationStore.getDirectMessageWithUsers("Cynthia", "Vasu"));
   }
 
   private void assertEquals(Conversation expectedConversation, Conversation actualConversation) {

@@ -49,6 +49,14 @@ public class Conversation {
     this.users = new ArrayList<>();
   }
 
+  public Conversation(UUID id, UUID owner, String title, Instant creation, List<User> users) {
+    this.id = id;
+    this.owner = owner;
+    this.creation = creation;
+    this.title = title;
+    this.users = users;
+  }
+
   /** Returns the ID of this Conversation. */
   public UUID getId() {
     return id;
@@ -74,16 +82,21 @@ public class Conversation {
     return users;
   }
 
+  /** Returns the number of users that can access and chat in this Conversation*/
+  public int getNumUsers() {
+    return users.size();
+  }
+
   /** Adds a user to the user List by using their username
    * @param username Username of the user to add
-   * @return whether or not the user was found and added into the List */
+   * @return boolean whether or not the user was found and added into the List */
   public boolean addUser(String username) {
     if (username == null) return false;
 
+    // TODO: refactor this to make it work with tests(originally used this to add users in ProfilePageServlet doPost)
     User user = UserStore.getInstance().getUser(username);
     if (user != null) {
       users.add(user);
-      System.out.println("added user" + user);
       return true;
     }
 
