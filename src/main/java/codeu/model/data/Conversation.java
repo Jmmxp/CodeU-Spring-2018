@@ -32,6 +32,7 @@ public class Conversation {
   public final String title;
   public final List<User> users;
 
+
   /**
    * Constructs a new Conversation.
    *
@@ -77,26 +78,38 @@ public class Conversation {
    * @param username Username of the user to add
    * @return whether or not the user was found and added into the List */
   public boolean addUser(String username) {
+    if (username == null) return false;
+
     User user = UserStore.getInstance().getUser(username);
     if (user != null) {
       users.add(user);
+      System.out.println("added user" + user);
       return true;
     }
 
     return false;
   }
 
-  /** Adds a user to the user List by using their UUID
-   * @param userId UUID of the user to add
-   * @return whether or not the user was found and added into the List */
-  public boolean addUser(UUID userId) {
-    User user = UserStore.getInstance().getUser(userId);
-    if (user != null) {
-      users.add(user);
-      return true;
+  /** Returns whether or not this Conversation is a normal conversation Direct Message */
+  public boolean isNormalConversation() {
+    // The convention will be that all normal conversations don't have anyone in their user List.
+    return users.size() == 0;
+  }
+
+  /** Returns whether or not the user is the user List for this Conversation */
+  public boolean isUserInConversation(String username) {
+    if (username == null || isNormalConversation()) {
+      return false;
+    }
+
+    for (User user : users) {
+      if (username.equals(user.getName())) {
+        return true;
+      }
     }
 
     return false;
+
   }
 
 }
