@@ -42,6 +42,7 @@ public class ProfilePageServletTest {
 	private PersistentStorageAgent mockPersistentStorageAgent;
 	private ConversationStore fakeConversationStore;
 	private UserStore fakeUserStore;
+	private ProfileStore fakeProfileStore;
 	
 	@Before
 	public void setup() {
@@ -106,6 +107,28 @@ public class ProfilePageServletTest {
 		profileServlet.doGet(mockRequest, mockResponse);
 		
 		Mockito.verify(mockResponse).sendRedirect("/login");
+	}
+  
+  public void testDoPost_UpdateAboutMe() throws IOException, PersistentDataStoreException, ServletException {
+		fakeProfileStore = ProfileStore.getTestInstance(mockPersistentStorageAgent);
+
+		Profile profile = new Profile(UUID.randomUUID(), "vasu", "Google Engineer");
+
+		fakeProfileStore.addProfile(profile);
+		profileServlet.setProfileStore(fakeProfileStore);
+
+		Assert.assertEquals(fakeProfileStore.getProfileText("vasu"), "Google Engineer");
+
+		Mockito.when(mockRequest.getRequestURI()).thenReturn("/profile/vasu");
+		// the description parameter holds the text the user is trying to update their 'About Me' to.
+		Mockito.when(mockRequest.getParameter("description"))
+				.thenReturn("Google Engineer and CodeU Project Advisor");
+
+		profileServlet.doPost(mockRequest, mockResponse);
+
+		Assert.assertEquals(fakeProfileStore.getProfileText("vasu"),
+				"Google Engineer and CodeU Project Advisor");
+		Mockito.verify(mockResponse).sendRedirect("/profile/vasu");
 	}
 
 	@Test
@@ -207,5 +230,5 @@ public class ProfilePageServletTest {
 
 		Mockito.verify(mockResponse).sendRedirect("/chat/" + conversationTwo.getTitle());
 	}
-	
+
 }

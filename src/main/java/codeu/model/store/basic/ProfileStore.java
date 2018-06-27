@@ -49,6 +49,7 @@ public class ProfileStore {
 	 */
 	private ProfileStore(PersistentStorageAgent persistentStorageAgent) {
 		this.persistentStorageAgent = persistentStorageAgent;
+		profiles = new HashMap<>();
 	}
 
 	/**
