@@ -66,11 +66,8 @@ public class ProfilePageServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String profileOwner = request.getRequestURI().substring("/profile/".length());
 		String text = request.getParameter("description");
-		ProfileStore.getInstance()
-				.addProfile(new Profile(UUID.randomUUID(),
-						profileOwner,
-						text));
-		ProfileStore.getInstance().setProfileText(profileOwner, text);
+		profileStore.addProfile(new Profile(UUID.randomUUID(), profileOwner, text));
+		profileStore.setProfileText(profileOwner, text);
 		
 		response.sendRedirect("/profile/" + profileOwner);
 	}
