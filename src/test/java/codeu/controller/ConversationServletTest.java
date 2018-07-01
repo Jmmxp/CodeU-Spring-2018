@@ -73,8 +73,8 @@ public class ConversationServletTest {
 
     conversationServlet.doGet(mockRequest, mockResponse);
 
-//    Mockito.verify(mockRequest).setAttribute("conversations", fakeConversationList);
-//    Mockito.verify(mockRequestDispatcher).forward(mockRequest, mockResponse);
+    Mockito.verify(mockRequest).setAttribute("conversations", fakeConversationList);
+    Mockito.verify(mockRequestDispatcher).forward(mockRequest, mockResponse);
   }
 
   @Test

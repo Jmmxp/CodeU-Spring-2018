@@ -124,7 +124,7 @@ public class ConversationStore {
    * @return The Conversation if it exists, null otherwise */
   public Conversation getDirectMessageWithUsers(String username1, String username2) {
     for (Conversation conversation : conversations) {
-      if (!conversation.isNormalConversation()) {
+      if (conversation.isDirectMessage()) {
         List<User> users = conversation.getUsers();
         String user1 = users.get(0).getName();
         String user2 = users.get(1).getName();

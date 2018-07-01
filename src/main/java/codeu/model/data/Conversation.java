@@ -31,7 +31,11 @@ public class Conversation {
   public final Instant creation;
   public final String title;
   public final List<User> users;
+  public final ConversationType conversationType;
 
+  public enum ConversationType {
+    NORMAL, DIRECT, GROUP
+  }
 
   /**
    * Constructs a new Conversation.
@@ -47,14 +51,27 @@ public class Conversation {
     this.creation = creation;
     this.title = title;
     this.users = new ArrayList<>();
+    this.conversationType = ConversationType.NORMAL;
   }
 
-  public Conversation(UUID id, UUID owner, String title, Instant creation, List<User> users) {
+  /**
+   * Constructs a new Conversation.
+   *
+   * @param id the ID of this Conversation
+   * @param owner the ID of the User who created this Conversation
+   * @param title the title of this Conversation
+   * @param creation the creation time of this Conversation
+   * @param users the Users that will be able to access and chat in this conversation
+   * @param conversationType the type of Conversation
+   */
+  public Conversation(UUID id, UUID owner, String title, Instant creation, List<User> users,
+                      ConversationType conversationType) {
     this.id = id;
     this.owner = owner;
     this.creation = creation;
     this.title = title;
     this.users = users;
+    this.conversationType = conversationType;
   }
 
   /** Returns the ID of this Conversation. */
@@ -87,6 +104,10 @@ public class Conversation {
     return users.size();
   }
 
+  public ConversationType getConversationType() {
+    return conversationType;
+  }
+
   /** Adds a user to the user List by using their username
    * @param username Username of the user to add
    * @return boolean whether or not the user was found and added into the List */
@@ -103,10 +124,19 @@ public class Conversation {
     return false;
   }
 
-  /** Returns whether or not this Conversation is a normal conversation Direct Message */
+  /** Returns whether or not this Conversation is a normal conversation */
   public boolean isNormalConversation() {
-    // The convention will be that all normal conversations don't have anyone in their user List.
-    return users.size() == 0;
+    return conversationType == ConversationType.NORMAL;
+  }
+
+  /** Returns whether or not this Conversation is a direct message conversation */
+  public boolean isDirectMessage() {
+    return conversationType == ConversationType.DIRECT;
+  }
+
+  /** Returns whether or not this Conversation is a direct message conversation */
+  public boolean isGroupMessage() {
+    return conversationType == ConversationType.GROUP;
   }
 
   /** Returns whether or not the user is the user List for this Conversation */

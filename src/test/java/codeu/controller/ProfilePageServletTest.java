@@ -28,6 +28,8 @@ import codeu.model.store.basic.ProfileStore;
 import codeu.model.store.persistence.PersistentDataStoreException;
 import codeu.model.store.persistence.PersistentStorageAgent;
 
+import static codeu.model.data.Conversation.*;
+
 /**
  * Testing class for the ProfilePageServlet
  *
@@ -135,7 +137,7 @@ public class ProfilePageServletTest {
 		users.add(userOne);
 		users.add(userTwo);
 		Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-				Instant.now(), users);
+				Instant.now(), users, ConversationType.DIRECT);
 
 		fakeConversationStore.addConversation(conversation);
 		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);
@@ -176,7 +178,7 @@ public class ProfilePageServletTest {
 		users.add(userOne);
 		users.add(userTwo);
 		Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-				Instant.now(), users);
+				Instant.now(), users, ConversationType.DIRECT);
 
 		fakeConversationStore.addConversation(conversation);
 		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);

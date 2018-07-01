@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static codeu.model.data.Conversation.*;
+
 /** Servlet class responsible for a user's profile page. */
 public class ProfilePageServlet extends HttpServlet {
 
@@ -120,7 +122,8 @@ public class ProfilePageServlet extends HttpServlet {
 				UUID ownerId = userStore.getUser(user).getId();
 				conversationTitle = id.toString();
 
-				Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now(), users);
+				Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now(), users,
+						ConversationType.DIRECT);
 				conversationStore.addConversation(conversation);
 			} else {
 				conversationTitle = directMessageConversation.getTitle();

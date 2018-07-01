@@ -21,6 +21,8 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static codeu.model.data.Conversation.*;
+
 public class ConversationTest {
 
   @Test
@@ -31,8 +33,9 @@ public class ConversationTest {
     Instant creation = Instant.now();
     List<User> users = new ArrayList<>();
     users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
+    ConversationType conversationType = ConversationType.NORMAL;
 
-    Conversation conversation = new Conversation(id, owner, title, creation, users);
+    Conversation conversation = new Conversation(id, owner, title, creation, users, conversationType);
 
     Assert.assertEquals(id, conversation.getId());
     Assert.assertEquals(owner, conversation.getOwnerId());
@@ -40,6 +43,7 @@ public class ConversationTest {
     Assert.assertEquals(creation, conversation.getCreationTime());
     Assert.assertEquals(users, conversation.getUsers());
     Assert.assertEquals(conversation.getNumUsers(), 1);
+    Assert.assertEquals(conversationType, conversation.getConversationType());
   }
 
   @Test
@@ -48,9 +52,8 @@ public class ConversationTest {
     UUID owner = UUID.randomUUID();
     String title = "Test_Title";
     Instant creation = Instant.now();
-    List<User> users = new ArrayList<>();
 
-    Conversation conversation = new Conversation(id, owner, title, creation, users);
+    Conversation conversation = new Conversation(id, owner, title, creation);
 
     Assert.assertEquals(conversation.isNormalConversation(), true);
   }
@@ -65,7 +68,7 @@ public class ConversationTest {
     users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
     users.add(new User(UUID.randomUUID(), "Test_Name2", "Test_Hash2", Instant.now()));
 
-    Conversation conversation = new Conversation(id, owner, title, creation, users);
+    Conversation conversation = new Conversation(id, owner, title, creation, users, ConversationType.DIRECT);
 
     Assert.assertEquals(conversation.isNormalConversation(), false);
   }
@@ -79,7 +82,7 @@ public class ConversationTest {
     List<User> users = new ArrayList<>();
     users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
 
-    Conversation conversation = new Conversation(id, owner, title, creation, users);
+    Conversation conversation = new Conversation(id, owner, title, creation, users, ConversationType.GROUP);
 
     Assert.assertEquals(conversation.isUserInConversation("Test_Name"), true);
     Assert.assertEquals(conversation.isUserInConversation("Test_Name2"), false);

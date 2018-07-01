@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static codeu.model.data.Conversation.*;
+
 public class ConversationStoreTest {
 
   private ConversationStore conversationStore;
@@ -113,11 +115,11 @@ public class ConversationStoreTest {
     users.add(userOne);
     users.add(userTwo);
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-            Instant.now(), users);
+            Instant.now(), users, ConversationType.DIRECT);
 
     users.add(userThree);
     Conversation conversationTwo = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-            Instant.now(), users);
+            Instant.now(), users, ConversationType.DIRECT);
 
     conversationStore.addConversation(conversation);
     conversationStore.addConversation(conversationTwo);
