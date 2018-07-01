@@ -98,7 +98,7 @@ public class ProfilePageServlet extends HttpServlet {
 		String user = (String) request.getSession().getAttribute("user");
 		String profileOwner = request.getRequestURI().substring("/profile/".length());
 		String text = request.getParameter("description");
-
+    
 		// TODO check if the button pressed was Update Profile (add an identifier to it in jsp first)
 
 		if (request.getParameter("messageUserButton") != null) {
@@ -133,12 +133,8 @@ public class ProfilePageServlet extends HttpServlet {
 			return;
 		}
 
-
-		ProfileStore.getInstance()
-				.addProfile(new Profile(UUID.randomUUID(),
-						profileOwner,
-						text));
-		ProfileStore.getInstance().setProfileText(profileOwner, text);
+		profileStore.addProfile(new Profile(UUID.randomUUID(), profileOwner, text));
+		profileStore.setProfileText(profileOwner, text);
 		
 		response.sendRedirect("/profile/" + profileOwner);
 	}
