@@ -14,6 +14,7 @@
 
 package codeu.controller;
 
+import codeu.helper.ChatHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.Message;
 import codeu.model.data.User;
@@ -95,20 +96,9 @@ public class ChatServlet extends HttpServlet {
       return;
     }
 
-    if (!conversation.isNormalConversation()) {
-      String user = (String) request.getSession().getAttribute("user");
-
-      // user is not logged in, redirect them to login page
-      if (user == null) {
-        response.sendRedirect("/login");
-        return;
-      }
-
-      // this user is not allowed to access the conversation, redirect them to their conversations page
-      if (!conversation.isUserInConversation(user)) {
-        response.sendRedirect("/conversations");
-        return;
-      }
+    String user = (String) request.getSession().getAttribute("user");
+    if (!ChatHelper.canAccess(user, conversation, response)) {
+      return;
     }
 
     UUID conversationId = conversation.getId();
