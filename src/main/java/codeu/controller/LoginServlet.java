@@ -61,6 +61,8 @@ public class LoginServlet extends HttpServlet {
       request.setAttribute("error", "You must log in before you can view the admin page!");
     }
 
+    // TODO: use url params to change the message according to what error (e.g. log in before direct messaging someone)
+
     String redirectParameter = request.getParameter("post_login_redirect");
     if (redirectParameter != null) {
       request.getSession().setAttribute("postLoginRedirect", redirectParameter);

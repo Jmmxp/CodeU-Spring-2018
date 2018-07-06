@@ -15,6 +15,7 @@
 package codeu.model.store.basic;
 
 import codeu.model.data.Conversation;
+import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +95,46 @@ public class ConversationStore {
       }
     }
     return null;
+  }
+
+  /** Find and return a List of Conversations that the user is able to access and chat in */
+  public List<Conversation> getConversationsForUser(String username) {
+    // TODO: decide whether or not this is needed (currently filtering conversations in conversations.jsp)
+    List<Conversation> userConversations = new ArrayList<>();
+
+    for (Conversation conversation : conversations) {
+      if (conversation.isNormalConversation()) {
+        userConversations.add(conversation);
+      } else if (conversation.isUserInConversation(username)) {
+        // not a normal conversation, check if the user is in the user List of the conversation
+        userConversations.add(conversation);
+      }
+
+    }
+
+    return userConversations;
+
+  }
+
+  /** Find and return a Direct Message conversation that the two users are a part of
+   * @param username1 username of the first user
+   * @param username2 username of the second user
+   * @return The Conversation if it exists, null otherwise */
+  public Conversation getDirectMessageWithUsers(String username1, String username2) {
+    for (Conversation conversation : conversations) {
+      if (conversation.isDirectMessage()) {
+        List<User> users = conversation.getUsers();
+        String user1 = users.get(0).getName();
+        String user2 = users.get(1).getName();
+        if ((user1.equals(username1) && user2.equals(username2)) ||
+                (user1.equals(username2) && user2.equals(username1))) {
+          return conversation;
+        }
+      }
+    }
+
+    return null;
+
   }
 
   /** Sets the List of Conversations stored by this ConversationStore. */

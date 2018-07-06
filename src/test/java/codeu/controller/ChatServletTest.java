@@ -36,6 +36,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import static org.mockito.Mockito.never;
+
 public class ChatServletTest {
 
   private ChatServlet chatServlet;
@@ -110,12 +112,51 @@ public class ChatServletTest {
   }
 
   @Test
+  public void testDoGet_UserNotLoggedInAccessingPrivateConversation() throws IOException, ServletException {
+    // Private conversation being one of DIRECT/GROUP
+    Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/private_conversation");
+    Mockito.when(mockSession.getAttribute("user")).thenReturn(null);
+
+    Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
+            Instant.now(), new ArrayList<>(), Conversation.ConversationType.DIRECT);
+    Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
+            .thenReturn(conversation);
+
+    chatServlet.doGet(mockRequest, mockResponse);
+
+    Mockito.verify(mockResponse).sendRedirect("/login");
+    // make sure the user isn't forwarded to the conversation (they are not allowed to access it)
+    Mockito.verify(mockRequestDispatcher, never()).forward(mockRequest, mockResponse);
+  }
+
+  @Test
+  public void testDoGet_UserNotAllowedToAccessPrivateConversation() throws IOException, ServletException {
+    // Private conversation being one of DIRECT/GROUP
+    Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/private_conversation");
+    Mockito.when(mockSession.getAttribute("user")).thenReturn("notNull");
+
+    User user = new User(UUID.randomUUID(), "Cynthia", "testHash", Instant.now());
+    ArrayList<User> users = new ArrayList<>();
+    users.add(user);
+    Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
+            Instant.now(), users, Conversation.ConversationType.GROUP);
+    Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
+            .thenReturn(conversation);
+
+    chatServlet.doGet(mockRequest, mockResponse);
+
+    Mockito.verify(mockResponse).sendRedirect("/conversations");
+    // make sure the user isn't forwarded to the conversation (they are not allowed to access it)
+    Mockito.verify(mockRequestDispatcher, never()).forward(mockRequest, mockResponse);
+  }
+
+  @Test
   public void testDoPost_UserNotLoggedIn() throws IOException, ServletException {
     Mockito.when(mockSession.getAttribute("user")).thenReturn(null);
 
     chatServlet.doPost(mockRequest, mockResponse);
 
-    Mockito.verify(mockMessageStore, Mockito.never()).addMessage(Mockito.any(Message.class));
+    Mockito.verify(mockMessageStore, never()).addMessage(Mockito.any(Message.class));
     Mockito.verify(mockResponse).sendRedirect("/login");
   }
 
@@ -126,7 +167,7 @@ public class ChatServletTest {
 
     chatServlet.doPost(mockRequest, mockResponse);
 
-    Mockito.verify(mockMessageStore, Mockito.never()).addMessage(Mockito.any(Message.class));
+    Mockito.verify(mockMessageStore, never()).addMessage(Mockito.any(Message.class));
     Mockito.verify(mockResponse).sendRedirect("/login");
   }
 
@@ -148,7 +189,7 @@ public class ChatServletTest {
 
     chatServlet.doPost(mockRequest, mockResponse);
 
-    Mockito.verify(mockMessageStore, Mockito.never()).addMessage(Mockito.any(Message.class));
+    Mockito.verify(mockMessageStore, never()).addMessage(Mockito.any(Message.class));
     Mockito.verify(mockResponse).sendRedirect("/conversations");
   }
 

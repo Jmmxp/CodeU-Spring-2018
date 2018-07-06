@@ -14,6 +14,7 @@
 
 package codeu.controller;
 
+import codeu.helper.ChatHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.Message;
 import codeu.model.data.User;
@@ -92,6 +93,11 @@ public class ChatServlet extends HttpServlet {
       // couldn't find conversation, redirect to conversation list
       System.out.println("Conversation was null: " + conversationTitle);
       response.sendRedirect("/conversations");
+      return;
+    }
+
+    String user = (String) request.getSession().getAttribute("user");
+    if (!ChatHelper.canAccess(user, conversation, response)) {
       return;
     }
 

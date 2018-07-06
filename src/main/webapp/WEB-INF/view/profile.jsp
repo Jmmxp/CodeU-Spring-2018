@@ -55,7 +55,13 @@
         	<button type="submit">Submit</button>
         </form>
       <% } %>
-        
+
+      <% if (!ProfileHelper.isSameUser(user, profileOwner)) { %>
+        <form method="POST" action="${pageContext.request.contextPath}/profile/<%= profileOwner %>">
+           <input type="submit" name="messageUserButton" value="Message <%= profileOwner %>" />
+        </form>
+      <% } %>
+
     </div>
   </div>
 </body>

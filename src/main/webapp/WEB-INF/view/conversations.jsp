@@ -33,8 +33,8 @@ String user = (String) request.getSession().getAttribute("user");
     <a id="navTitle" href="/">Git Rekt's Chat App</a>
     <a href="/conversations">Conversations</a>
 
-    <% if(request.getSession().getAttribute("user") != null){ %>
-      <a>Hello <%= request.getSession().getAttribute("user") %>!</a>
+    <% if (user != null) { %>
+      <a>Hello <%= user %>!</a>
     <% } else{ %>
       <a href="/login">Login</a>
     <% } %>
@@ -87,8 +87,10 @@ String user = (String) request.getSession().getAttribute("user");
     <%
       for(Conversation conversation : conversations){
     %>
-      <li><a href="/chat/<%= conversation.getTitle() %>">
-        <%= conversation.getTitle() %></a></li>
+      <% if (conversation.isNormalConversation() || (user != null && conversation.isUserInConversation(user))) { %>
+        <li><a href="/chat/<%= conversation.getTitle() %>">
+          <%= conversation.getTitle() %></a></li>
+      <% } %>
     <%
       }
     %>
