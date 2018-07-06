@@ -104,11 +104,9 @@ public class ConversationStore {
 
     for (Conversation conversation : conversations) {
       if (conversation.isNormalConversation()) {
-        System.out.println("Normal: " + conversation.getTitle());
         userConversations.add(conversation);
       } else if (conversation.isUserInConversation(username)) {
         // not a normal conversation, check if the user is in the user List of the conversation
-        System.out.println("Not normal: " + conversation.getTitle());
         userConversations.add(conversation);
       }
 
