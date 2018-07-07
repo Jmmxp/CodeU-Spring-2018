@@ -39,7 +39,7 @@ int numConversations = ConversationStore.getInstance().getNumConversations();
     <a href="/conversations">Conversations</a>
 
     <% if(user != null){ %>
-      <a>Hello <%= request.getSession().getAttribute("user") %>!</a>
+      <a>Hello <%= user %>!</a>
     <% } else{ %>
       <a href="/login">Login</a>
     <% } %>

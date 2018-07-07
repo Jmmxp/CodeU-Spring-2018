@@ -108,6 +108,10 @@ public class Conversation {
     return conversationType;
   }
 
+  public void addUser(User user) {
+    users.add(user);
+  }
+
   /** Adds a user to the user List by using their username
    * @param username Username of the user to add
    * @return boolean whether or not the user was found and added into the List */

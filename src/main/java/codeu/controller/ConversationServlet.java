@@ -20,6 +20,7 @@ import codeu.model.store.basic.ConversationStore;
 import codeu.model.store.basic.UserStore;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +28,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static codeu.model.data.Conversation.*;
 
 /** Servlet class responsible for the conversations page. */
 public class ConversationServlet extends HttpServlet {
@@ -114,14 +117,20 @@ public class ConversationServlet extends HttpServlet {
     }
 
     if (conversationStore.isTitleTaken(conversationTitle)) {
-      // conversation title is already taken, just go into that conversation instead of creating a
-      // new one
+      // conversation title is already taken, just go into that conversation instead of creating a new one
       response.sendRedirect("/chat/" + conversationTitle);
       return;
     }
 
-    Conversation conversation =
-        new Conversation(UUID.randomUUID(), user.getId(), conversationTitle, Instant.now());
+    Conversation conversation;
+    if (request.getParameter("newGroupConversation") != null) {
+      List<User> users = new ArrayList<>();
+      users.add(user);
+      conversation = new Conversation(UUID.randomUUID(), user.getId(), conversationTitle, Instant.now(),
+              users, ConversationType.GROUP);
+    } else {
+      conversation = new Conversation(UUID.randomUUID(), user.getId(), conversationTitle, Instant.now());
+    }
 
     conversationStore.addConversation(conversation);
     response.sendRedirect("/chat/" + conversationTitle);

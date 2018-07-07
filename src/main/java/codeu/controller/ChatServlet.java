@@ -107,6 +107,16 @@ public class ChatServlet extends HttpServlet {
 
     request.setAttribute("conversation", conversation);
     request.setAttribute("messages", messages);
+
+    String addNewUserParameter = request.getParameter("add_new_user_message");
+    if (addNewUserParameter != null) {
+      if (addNewUserParameter.equals("successful")) {
+        request.getSession().setAttribute("addNewUserMessage", "Added new user to the conversation!");
+      } else {
+        request.getSession().setAttribute("addNewUserMessage", "Couldn't find that user");
+      }
+    }
+
     request.getRequestDispatcher("/WEB-INF/view/chat.jsp").forward(request, response);
   }
 
@@ -121,6 +131,7 @@ public class ChatServlet extends HttpServlet {
       throws IOException, ServletException {
 
     String username = (String) request.getSession().getAttribute("user");
+
     if (username == null) {
       // user is not logged in, don't let them add a message
       response.sendRedirect("/login");
@@ -144,22 +155,39 @@ public class ChatServlet extends HttpServlet {
       return;
     }
 
-    String messageContent = request.getParameter("message");
+    if (request.getParameter("addNewUser") != null) {
+      // add new user button was clicked
+      String newUserName = request.getParameter("newUser");
+      User newUser = userStore.getUser(newUserName);
 
-    // this removes any HTML from the message content
-    String cleanedMessageContent = Jsoup.clean(messageContent, Whitelist.none());
+      // TODO: fix the user add message not displaying
+      if (newUser == null) {
+        response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_messsage=unsuccessful");
+        return;
+      }
+      conversation.addUser(newUser);
+      response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_messsage=successful");
+    } else {
+      // message button was clicked
+      String messageContent = request.getParameter("message");
 
-    Message message =
-        new Message(
-            UUID.randomUUID(),
-            conversation.getId(),
-            user.getId(),
-            cleanedMessageContent,
-            Instant.now());
+      // this removes any HTML from the message content
+      String cleanedMessageContent = Jsoup.clean(messageContent, Whitelist.none());
 
-    messageStore.addMessage(message);
+      Message message =
+              new Message(
+                      UUID.randomUUID(),
+                      conversation.getId(),
+                      user.getId(),
+                      cleanedMessageContent,
+                      Instant.now());
 
-    // redirect to a GET request
-    response.sendRedirect("/chat/" + conversationTitle);
+      messageStore.addMessage(message);
+
+      // redirect to a GET request
+      response.sendRedirect("/chat/" + conversationTitle);
+    }
+
   }
+
 }

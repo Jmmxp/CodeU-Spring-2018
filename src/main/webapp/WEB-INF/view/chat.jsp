@@ -97,13 +97,31 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
     <form action="/chat/<%= conversation.getTitle() %>" method="POST">
         <input type="text" name="message">
         <br/>
-        <button type="submit">Send</button>
+        <button type="submit" name="sendMessage">Send</button>
     </form>
+
+      <% if (conversation.isGroupMessage()) {
+		// check if group convo owner is current user
+	  	String name = UserStore.getInstance().getUser(conversation.getOwnerId())
+		 	.getName();
+			if (user.equals(name)) {
+		%>
+	    <form action="/chat/<%= conversation.getTitle() %>" method="POST">
+	        <input type="text" name="newUser">
+	        <br/>
+	        <button type="submit" name="addNewUser">Add User</button>
+	    </form>
+	  <% }
+  		} %>
     <% } else { %>
       <p><a href="/login">Login</a> to send a message.</p>
     <% } %>
 
     <hr/>
+
+	<% if (request.getSession().getAttribute("addNewUserMessage") != null){ %>
+        <h2><%= request.getSession().getAttribute("addNewUserMessage") %></h2>
+    <% } %>
 
   </div>
 
