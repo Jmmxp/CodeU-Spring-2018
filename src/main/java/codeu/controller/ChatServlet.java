@@ -108,7 +108,7 @@ public class ChatServlet extends HttpServlet {
     request.setAttribute("conversation", conversation);
     request.setAttribute("messages", messages);
 
-    String addNewUserParameter = request.getParameter("add_new_user_message");
+    String addNewUserParameter = request.getParameter("add_new_user");
     if (addNewUserParameter != null) {
       if (addNewUserParameter.equals("successful")) {
         request.getSession().setAttribute("addNewUserMessage", "Added new user to the conversation!");
@@ -155,6 +155,7 @@ public class ChatServlet extends HttpServlet {
       return;
     }
 
+    // Check what action was performed (message, add new user, etc.)
     if (request.getParameter("addNewUser") != null) {
       // add new user button was clicked
       String newUserName = request.getParameter("newUser");
@@ -162,11 +163,11 @@ public class ChatServlet extends HttpServlet {
 
       // TODO: fix the user add message not displaying
       if (newUser == null) {
-        response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_messsage=unsuccessful");
+        response.sendRedirect("/chat/" + conversationTitle + "?add_new_user=unsuccessful");
         return;
       }
       conversation.addUser(newUser);
-      response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_messsage=successful");
+      response.sendRedirect("/chat/" + conversationTitle + "?add_new_user=successful");
     } else {
       // message button was clicked
       String messageContent = request.getParameter("message");

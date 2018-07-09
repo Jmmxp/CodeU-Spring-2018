@@ -63,11 +63,11 @@ String user = (String) request.getSession().getAttribute("user");
           <div class="form-group">
             <label class="form-control-label">Title:</label>
           <input type="text" name="conversationTitle">
+          <input type="checkbox" id="groupCheckbox" name="newGroupConversation">
+          <label for="groupCheckbox">Group</label>
         </div>
-
         <button type="submit" name="newConversation">Create</button>
       </form>
-
       <hr/>
     <% } %>
 
@@ -99,19 +99,6 @@ String user = (String) request.getSession().getAttribute("user");
     }
     %>
     <hr/>
-	<% if (user != null){ %>
-      <h1>New Group Conversation</h1>
-      <form action="/conversations" method="POST">
-          <div class="form-group">
-            <label class="form-control-label">Title:</label>
-          <input type="text" name="conversationTitle">
-        </div>
-
-        <button type="submit" name="newGroupConversation">Create</button>
-      </form>
-
-      <hr/>
-    <% } %>
   </div>
 </body>
 </html>

@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import static codeu.model.data.Conversation.*;
 import static org.mockito.Mockito.never;
 
 public class ChatServletTest {
@@ -118,7 +119,7 @@ public class ChatServletTest {
     Mockito.when(mockSession.getAttribute("user")).thenReturn(null);
 
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
-            Instant.now(), new ArrayList<>(), Conversation.ConversationType.DIRECT);
+            Instant.now(), new ArrayList<>(), ConversationType.DIRECT);
     Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
             .thenReturn(conversation);
 
@@ -139,7 +140,7 @@ public class ChatServletTest {
     ArrayList<User> users = new ArrayList<>();
     users.add(user);
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
-            Instant.now(), users, Conversation.ConversationType.GROUP);
+            Instant.now(), users, ConversationType.GROUP);
     Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
             .thenReturn(conversation);
 
@@ -220,6 +221,81 @@ public class ChatServletTest {
     Assert.assertEquals("Test message.", messageArgumentCaptor.getValue().getContent());
 
     Mockito.verify(mockResponse).sendRedirect("/chat/test_conversation");
+  }
+
+  @Test
+  public void testDoPost_AddInvalidUserToConversation() throws IOException, ServletException {
+    Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/test_conversation");
+    Mockito.when(mockSession.getAttribute("user")).thenReturn("Justin");
+
+    User fakeUser =
+            new User(
+                    UUID.randomUUID(),
+                    "Justin",
+                    "testHash",
+                    Instant.now());
+    Mockito.when(mockUserStore.getUser("Justin")).thenReturn(fakeUser);
+
+    List<User> users = new ArrayList<>();
+    users.add(fakeUser);
+
+    Conversation fakeConversation =
+            new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(), users,
+                    ConversationType.GROUP);
+    Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
+            .thenReturn(fakeConversation);
+
+    Mockito.when(mockRequest.getParameter("addNewUser")).thenReturn("notNull");
+    Mockito.when(mockRequest.getParameter("newUser")).thenReturn(null);
+
+    chatServlet.doPost(mockRequest, mockResponse);
+
+    Mockito.verify(mockUserStore).getUser((String) null);
+    Assert.assertEquals(fakeConversation.isUserInConversation("Justin"), true);
+    Assert.assertEquals(fakeConversation.getNumUsers(), 1);
+    Mockito.verify(mockResponse).sendRedirect("/chat/" + fakeConversation.getTitle() + "?add_new_user=unsuccessful");
+  }
+
+  @Test
+  public void testDoPost_AddValidUserToConversation() throws IOException, ServletException {
+    Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/test_conversation");
+    Mockito.when(mockSession.getAttribute("user")).thenReturn("fakeUser");
+
+    User fakeUser =
+            new User(
+                    UUID.randomUUID(),
+                    "fakeUser",
+                    "testHash",
+                    Instant.now());
+    Mockito.when(mockUserStore.getUser("fakeUser")).thenReturn(fakeUser);
+
+    List<User> users = new ArrayList<>();
+    users.add(fakeUser);
+
+    Conversation fakeConversation =
+            new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(), users,
+                    ConversationType.GROUP);
+    Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
+            .thenReturn(fakeConversation);
+
+    User addedUser =
+            new User(
+                    UUID.randomUUID(),
+                    "addedUser",
+                    "testHash",
+                    Instant.now());
+    Mockito.when(mockUserStore.getUser("addedUser")).thenReturn(addedUser);
+
+    Mockito.when(mockRequest.getParameter("addNewUser")).thenReturn("notNull");
+    Mockito.when(mockRequest.getParameter("newUser")).thenReturn("addedUser");
+
+    chatServlet.doPost(mockRequest, mockResponse);
+
+    Mockito.verify(mockUserStore).getUser("addedUser");
+    Assert.assertEquals(fakeConversation.isUserInConversation("fakeUser"), true);
+    // make sure the added user is in the conversation as well
+    Assert.assertEquals(fakeConversation.isUserInConversation("addedUser"), true);
+    Mockito.verify(mockResponse).sendRedirect("/chat/" + fakeConversation.getTitle() + "?add_new_user=successful");
   }
 
   @Test

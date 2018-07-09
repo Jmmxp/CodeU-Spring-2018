@@ -34,6 +34,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import static codeu.model.data.Conversation.*;
+
 public class ConversationServletTest {
 
   private ConversationServlet conversationServlet;
@@ -147,6 +149,7 @@ public class ConversationServletTest {
   public void testDoPost_NewConversation() throws IOException, ServletException {
     Mockito.when(mockRequest.getParameter("conversationTitle")).thenReturn("test_conversation");
     Mockito.when(mockSession.getAttribute("user")).thenReturn("test_username");
+    Mockito.when(mockRequest.getParameter("newGroupConversation")).thenReturn(null);
 
     User fakeUser =
         new User(
@@ -164,6 +167,34 @@ public class ConversationServletTest {
         ArgumentCaptor.forClass(Conversation.class);
     Mockito.verify(mockConversationStore).addConversation(conversationArgumentCaptor.capture());
     Assert.assertEquals(conversationArgumentCaptor.getValue().getTitle(), "test_conversation");
+    Assert.assertEquals(conversationArgumentCaptor.getValue().getConversationType(), ConversationType.NORMAL);
+
+    Mockito.verify(mockResponse).sendRedirect("/chat/test_conversation");
+  }
+
+  @Test
+  public void testDoPost_NewGroupConversation() throws IOException, ServletException {
+    Mockito.when(mockRequest.getParameter("conversationTitle")).thenReturn("test_conversation");
+    Mockito.when(mockSession.getAttribute("user")).thenReturn("test_username");
+    Mockito.when(mockRequest.getParameter("newGroupConversation")).thenReturn("notNull");
+
+    User fakeUser =
+            new User(
+                    UUID.randomUUID(),
+                    "test_username",
+                    "$2a$10$eDhncK/4cNH2KE.Y51AWpeL8/5znNBQLuAFlyJpSYNODR/SJQ/Fg6",
+                    Instant.now());
+    Mockito.when(mockUserStore.getUser("test_username")).thenReturn(fakeUser);
+
+    Mockito.when(mockConversationStore.isTitleTaken("test_conversation")).thenReturn(false);
+
+    conversationServlet.doPost(mockRequest, mockResponse);
+
+    ArgumentCaptor<Conversation> conversationArgumentCaptor =
+            ArgumentCaptor.forClass(Conversation.class);
+    Mockito.verify(mockConversationStore).addConversation(conversationArgumentCaptor.capture());
+    Assert.assertEquals(conversationArgumentCaptor.getValue().getTitle(), "test_conversation");
+    Assert.assertEquals(conversationArgumentCaptor.getValue().getConversationType(), ConversationType.GROUP);
 
     Mockito.verify(mockResponse).sendRedirect("/chat/test_conversation");
   }
