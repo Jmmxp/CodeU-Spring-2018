@@ -241,14 +241,14 @@ public class ChatServletTest {
         .thenReturn(fakeConversation);
 
     Mockito.when(mockRequest.getParameter("message"))
-        .thenReturn("Contains <b>html</b> and <script>JavaScript</script> content.");
+        .thenReturn("Contains <b>html</b> and <script>JavaScript</script> content. <img src=smiley.gif alt=Smiley face>, <a href=https://www.w3schools.com/>Visit W3Schools.com!</a> ");
 
     chatServlet.doPost(mockRequest, mockResponse);
 
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
     Mockito.verify(mockMessageStore).addMessage(messageArgumentCaptor.capture());
     Assert.assertEquals(
-        "Contains html and  content.", messageArgumentCaptor.getValue().getContent());
+        "Contains <b>html</b> and  content. , <a href=\"https://www.w3schools.com/\" rel=\"nofollow\">Visit W3Schools.com!</a> ", messageArgumentCaptor.getValue().getContent());
 
     Mockito.verify(mockResponse).sendRedirect("/chat/test_conversation");
   }
