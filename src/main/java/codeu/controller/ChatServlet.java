@@ -145,7 +145,7 @@ public class ChatServlet extends HttpServlet {
     settings.prettyPrint(false);
 
 
-    // Allows basic HTML
+    // Allows basic HTML including <a> tags   , disallows images and script 
     String cleanedMessageContent = Jsoup.clean(messageContent, "",Whitelist.basic(), settings);
 
     Message message =
