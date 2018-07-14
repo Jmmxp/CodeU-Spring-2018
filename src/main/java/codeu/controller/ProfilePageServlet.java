@@ -1,5 +1,7 @@
 package codeu.controller;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +19,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static codeu.model.data.Conversation.*;
 
 /** Servlet class responsible for a user's profile page. */
 public class ProfilePageServlet extends HttpServlet {

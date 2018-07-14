@@ -108,9 +108,12 @@ public class ChatServlet extends HttpServlet {
     request.setAttribute("conversation", conversation);
     request.setAttribute("messages", messages);
 
-    String addNewUserParameter = request.getParameter("add_new_user");
-    if (addNewUserParameter != null) {
-      if (addNewUserParameter.equals("successful")) {
+    String addNewUserMessage = request.getParameter("add_new_user_message");
+    if (addNewUserMessage != null) {
+      /* TODO: figure out why request.setAttribute() doesn't work
+      Problem with getSession().setAttribute is the message stays until you clear it b/c you're setting a session attr.
+      */
+      if (addNewUserMessage.equals("successful")) {
         request.getSession().setAttribute("addNewUserMessage", "Added new user to the conversation!");
       } else {
         request.getSession().setAttribute("addNewUserMessage", "Couldn't find that user");
@@ -161,13 +164,12 @@ public class ChatServlet extends HttpServlet {
       String newUserName = request.getParameter("newUser");
       User newUser = userStore.getUser(newUserName);
 
-      // TODO: fix the user add message not displaying
       if (newUser == null) {
-        response.sendRedirect("/chat/" + conversationTitle + "?add_new_user=unsuccessful");
+        response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_message=unsuccessful");
         return;
       }
       conversation.addUser(newUser);
-      response.sendRedirect("/chat/" + conversationTitle + "?add_new_user=successful");
+      response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_message=successful");
     } else {
       // message button was clicked
       String messageContent = request.getParameter("message");

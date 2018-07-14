@@ -14,6 +14,8 @@
 
 package codeu.controller;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
@@ -33,8 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import static codeu.model.data.Conversation.*;
 
 public class ConversationServletTest {
 

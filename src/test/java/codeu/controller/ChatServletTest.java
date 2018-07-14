@@ -14,6 +14,8 @@
 
 package codeu.controller;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import codeu.model.data.Conversation;
 import codeu.model.data.Message;
 import codeu.model.data.User;
@@ -36,7 +38,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import static codeu.model.data.Conversation.*;
 import static org.mockito.Mockito.never;
 
 public class ChatServletTest {
@@ -253,7 +254,8 @@ public class ChatServletTest {
     Mockito.verify(mockUserStore).getUser((String) null);
     Assert.assertEquals(fakeConversation.isUserInConversation("Justin"), true);
     Assert.assertEquals(fakeConversation.getNumUsers(), 1);
-    Mockito.verify(mockResponse).sendRedirect("/chat/" + fakeConversation.getTitle() + "?add_new_user=unsuccessful");
+    Mockito.verify(mockResponse)
+            .sendRedirect("/chat/" + fakeConversation.getTitle() + "?add_new_user_message=unsuccessful");
   }
 
   @Test
@@ -295,7 +297,8 @@ public class ChatServletTest {
     Assert.assertEquals(fakeConversation.isUserInConversation("fakeUser"), true);
     // make sure the added user is in the conversation as well
     Assert.assertEquals(fakeConversation.isUserInConversation("addedUser"), true);
-    Mockito.verify(mockResponse).sendRedirect("/chat/" + fakeConversation.getTitle() + "?add_new_user=successful");
+    Mockito.verify(mockResponse)
+            .sendRedirect("/chat/" + fakeConversation.getTitle() + "?add_new_user_message=successful");
   }
 
   @Test
