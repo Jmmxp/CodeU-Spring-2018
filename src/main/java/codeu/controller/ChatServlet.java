@@ -91,7 +91,6 @@ public class ChatServlet extends HttpServlet {
     Conversation conversation = conversationStore.getConversationWithTitle(conversationTitle);
     if (conversation == null) {
       // couldn't find conversation, redirect to conversation list
-      System.out.println("Conversation was null: " + conversationTitle);
       response.sendRedirect("/conversations");
       return;
     }
@@ -108,16 +107,10 @@ public class ChatServlet extends HttpServlet {
     request.setAttribute("conversation", conversation);
     request.setAttribute("messages", messages);
 
-    String addNewUserMessage = request.getParameter("add_new_user_message");
+    String addNewUserMessage = (String) request.getSession().getAttribute("addNewUserMessage");
     if (addNewUserMessage != null) {
-      /* TODO: figure out why request.setAttribute() doesn't work
-      Problem with getSession().setAttribute is the message stays until you clear it b/c you're setting a session attr.
-      */
-      if (addNewUserMessage.equals("successful")) {
-        request.getSession().setAttribute("addNewUserMessage", "Added new user to the conversation!");
-      } else {
-        request.getSession().setAttribute("addNewUserMessage", "Couldn't find that user");
-      }
+      request.setAttribute("addNewUserMessage", addNewUserMessage);
+      request.getSession().setAttribute("addNewUserMessage", null);
     }
 
     request.getRequestDispatcher("/WEB-INF/view/chat.jsp").forward(request, response);
@@ -132,7 +125,6 @@ public class ChatServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
-
     String username = (String) request.getSession().getAttribute("user");
 
     if (username == null) {
@@ -160,16 +152,9 @@ public class ChatServlet extends HttpServlet {
 
     // Check what action was performed (message, add new user, etc.)
     if (request.getParameter("addNewUser") != null) {
-      // add new user button was clicked
       String newUserName = request.getParameter("newUser");
-      User newUser = userStore.getUser(newUserName);
-
-      if (newUser == null) {
-        response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_message=unsuccessful");
-        return;
-      }
-      conversation.addUser(newUser);
-      response.sendRedirect("/chat/" + conversationTitle + "?add_new_user_message=successful");
+      // add new user button was clicked
+      response.sendRedirect("/chat/add-user/" + conversationTitle + "?new_user=" + newUserName);
     } else {
       // message button was clicked
       String messageContent = request.getParameter("message");

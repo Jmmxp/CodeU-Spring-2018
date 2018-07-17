@@ -119,8 +119,8 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 
     <hr/>
 
-	<% if (request.getSession().getAttribute("addNewUserMessage") != null){ %>
-        <h2><%= request.getSession().getAttribute("addNewUserMessage") %></h2>
+	<% if (request.getAttribute("addNewUserMessage") != null){ %>
+        <h2><%= request.getAttribute("addNewUserMessage") %></h2>
     <% } %>
 
   </div>
