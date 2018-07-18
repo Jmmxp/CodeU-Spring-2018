@@ -34,7 +34,7 @@ String user = (String) request.getSession().getAttribute("user");
     <a href="/conversations">Conversations</a>
 
     <% if (user != null) { %>
-      <a>Hello <%= user %>!</a>
+      <a href="/profile/<%= user %>">Hello <%= user %>!</a>
     <% } else{ %>
       <a href="/login">Login</a>
     <% } %>
