@@ -96,6 +96,7 @@ public class ChatServlet extends HttpServlet {
     }
 
     String user = (String) request.getSession().getAttribute("user");
+    // Redirect user to login or convo page if they are not logged in or they are not allowed to access the convo
     if (!ChatHelper.canAccess(user, conversation, response)) {
       return;
     }
@@ -124,7 +125,7 @@ public class ChatServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+      throws IOException {
     String username = (String) request.getSession().getAttribute("user");
 
     if (username == null) {

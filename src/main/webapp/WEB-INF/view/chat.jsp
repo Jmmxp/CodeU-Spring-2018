@@ -84,7 +84,7 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
           .getUser(message.getAuthorId()).getName();
     %>
       <li><strong><a href="/profile/<%= author %>">
-      	<%= author %>:</a></strong> <%= message.getContent() %></li>
+      	<%= author %></a>:</strong> <%= message.getContent() %></li>
     <%
       }
     %>
@@ -106,7 +106,7 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 		 	.getName();
 			if (user.equals(name)) {
 		%>
-	    <form action="/chat/<%= conversation.getTitle() %>" method="POST">
+	    <form action="/chat/add-user/<%= conversation.getTitle() %>" method="POST">
 	        <input type="text" name="newUser">
 	        <br/>
 	        <button type="submit" name="addNewUser">Add User</button>

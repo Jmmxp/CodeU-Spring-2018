@@ -48,18 +48,25 @@ public class ChatAddUserServlet extends HttpServlet {
     }
 
     /**
-     * This function fires when a user tries to add another user to a Group Conversation
-     * It adds the user to the conversation if possible, and then redirects back to ChatServlet so that
+     * This function fires when a user clicks the button to add another user to a Group Conversation
+     * It adds the user to the conversation if they exist, and then redirects back to ChatServlet so that
      * it can render chat.jsp
      */
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
         String requestUrl = request.getRequestURI();
         String conversationTitle = requestUrl.substring("/chat/add-user/".length());
-        String newUserName = request.getParameter("new_user");
+        String newUserName = request.getParameter("newUser");
 
-        // Sanity checks are performed by ChatServlet in doPost (which is what redirects to here)
+        // if add new user button is somehow not registered as being clicked, immediately return
+        if (request.getParameter("addNewUser") == null) {
+            response.sendRedirect("/chat/" + conversationTitle);
+            return;
+        }
+
+        // Sanity checks that convo exists is done by ChatServlet doGet() method
         Conversation conversation = conversationStore.getConversationWithTitle(conversationTitle);
         User newUser = userStore.getUser(newUserName);
 
