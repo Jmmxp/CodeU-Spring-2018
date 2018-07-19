@@ -34,7 +34,7 @@ String user = (String) request.getSession().getAttribute("user");
     <a href="/conversations">Conversations</a>
 
     <% if (user != null) { %>
-      <a>Hello <%= user %>!</a>
+      <a href="/profile/<%= user %>">Hello <%= user %>!</a>
     <% } else{ %>
       <a href="/login">Login</a>
     <% } %>
@@ -53,21 +53,21 @@ String user = (String) request.getSession().getAttribute("user");
 
   <div id="container">
 
-    <% if(request.getAttribute("error") != null){ %>
+    <% if (request.getAttribute("error") != null){ %>
         <h2 style="color:red"><%= request.getAttribute("error") %></h2>
     <% } %>
 
-    <% if(request.getSession().getAttribute("user") != null){ %>
+    <% if (user != null){ %>
       <h1>New Conversation</h1>
       <form action="/conversations" method="POST">
           <div class="form-group">
             <label class="form-control-label">Title:</label>
           <input type="text" name="conversationTitle">
+          <input type="checkbox" id="groupCheckbox" name="newGroupConversation">
+          <label for="groupCheckbox">Group</label>
         </div>
-
-        <button type="submit">Create</button>
+        <button type="submit" name="newConversation">Create</button>
       </form>
-
       <hr/>
     <% } %>
 

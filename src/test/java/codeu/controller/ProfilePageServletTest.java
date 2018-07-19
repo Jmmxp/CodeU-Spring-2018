@@ -1,9 +1,10 @@
 package codeu.controller;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +28,6 @@ import codeu.model.data.Profile;
 import codeu.model.store.basic.ProfileStore;
 import codeu.model.store.persistence.PersistentDataStoreException;
 import codeu.model.store.persistence.PersistentStorageAgent;
-
-import static codeu.model.data.Conversation.*;
 
 /**
  * Testing class for the ProfilePageServlet

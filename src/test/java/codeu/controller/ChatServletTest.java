@@ -14,6 +14,8 @@
 
 package codeu.controller;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import codeu.model.data.Conversation;
 import codeu.model.data.Message;
 import codeu.model.data.User;
@@ -118,7 +120,7 @@ public class ChatServletTest {
     Mockito.when(mockSession.getAttribute("user")).thenReturn(null);
 
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
-            Instant.now(), new ArrayList<>(), Conversation.ConversationType.DIRECT);
+            Instant.now(), new ArrayList<>(), ConversationType.DIRECT);
     Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
             .thenReturn(conversation);
 
@@ -139,7 +141,7 @@ public class ChatServletTest {
     ArrayList<User> users = new ArrayList<>();
     users.add(user);
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
-            Instant.now(), users, Conversation.ConversationType.GROUP);
+            Instant.now(), users, ConversationType.GROUP);
     Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
             .thenReturn(conversation);
 

@@ -13,9 +13,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 --%>
+
+<%@ page import="codeu.helper.ProfileHelper"%>
+<%@ page import="codeu.model.store.basic.ProfileStore"%>
+
+<%
+String user = (String) request.getSession().getAttribute("user");
+String profileOwner = (String) request.getAttribute("profileName");
+%>
+
 <!DOCTYPE html>
-<%@page import="codeu.helper.ProfileHelper"%>
-<%@page import="codeu.model.store.basic.ProfileStore" %>
+
 <html>
 <head>
   <title>Git Rekt's Chat App</title>
@@ -26,8 +34,8 @@
   <nav>
     <a id="navTitle" href="/">Git Rekt's Chat App</a>
     <a href="/conversations">Conversations</a>
-    <% if(request.getSession().getAttribute("user") != null){ %>
-      <a>Hello <%= request.getSession().getAttribute("user") %>!</a>
+    <% if (user != null){ %>
+      <a href="/profile/<%= user %>">Hello <%= user %>!</a>
     <% } else{ %>
       <a href="/login">Login</a>
     <% } %>
@@ -37,10 +45,6 @@
   <div id="container">
     <div
       style="width:75%; margin-left:auto; margin-right:auto; margin-top: 50px;">
-      <% 
-       String user = (String) request.getSession().getAttribute("user"); 
-       String profileOwner = (String) request.getAttribute("profileName"); 
-      %>
        <h1><%= profileOwner %>'s Profile</h1>
        <hr>
        <h2>About Me</h2>

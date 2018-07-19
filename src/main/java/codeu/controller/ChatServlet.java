@@ -92,12 +92,12 @@ public class ChatServlet extends HttpServlet {
     Conversation conversation = conversationStore.getConversationWithTitle(conversationTitle);
     if (conversation == null) {
       // couldn't find conversation, redirect to conversation list
-      System.out.println("Conversation was null: " + conversationTitle);
       response.sendRedirect("/conversations");
       return;
     }
 
     String user = (String) request.getSession().getAttribute("user");
+    // Redirect user to login or convo page if they are not logged in or they are not allowed to access the convo
     if (!ChatHelper.canAccess(user, conversation, response)) {
       return;
     }
@@ -108,6 +108,13 @@ public class ChatServlet extends HttpServlet {
 
     request.setAttribute("conversation", conversation);
     request.setAttribute("messages", messages);
+
+    String addNewUserMessage = (String) request.getSession().getAttribute("addNewUserMessage");
+    if (addNewUserMessage != null) {
+      request.setAttribute("addNewUserMessage", addNewUserMessage);
+      request.getSession().setAttribute("addNewUserMessage", null);
+    }
+
     request.getRequestDispatcher("/WEB-INF/view/chat.jsp").forward(request, response);
   }
 
@@ -119,9 +126,9 @@ public class ChatServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
-
+      throws IOException {
     String username = (String) request.getSession().getAttribute("user");
+
     if (username == null) {
       // user is not logged in, don't let them add a message
       response.sendRedirect("/login");
@@ -155,16 +162,18 @@ public class ChatServlet extends HttpServlet {
     String cleanedMessageContent = Jsoup.clean(messageContent, "",Whitelist.basic(), settings);
 
     Message message =
-        new Message(
-            UUID.randomUUID(),
-            conversation.getId(),
-            user.getId(),
-            cleanedMessageContent,
-            Instant.now());
+            new Message(
+                    UUID.randomUUID(),
+                    conversation.getId(),
+                    user.getId(),
+                    cleanedMessageContent,
+                    Instant.now());
 
     messageStore.addMessage(message);
 
     // redirect to a GET request
     response.sendRedirect("/chat/" + conversationTitle);
+
   }
+
 }

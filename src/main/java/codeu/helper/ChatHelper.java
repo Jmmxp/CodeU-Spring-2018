@@ -31,4 +31,5 @@ public class ChatHelper {
 
         return true; // note that all users (even logged out) can access Normal Conversations.
     }
+
 }
