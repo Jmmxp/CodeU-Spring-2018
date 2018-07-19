@@ -102,13 +102,9 @@ public class ConversationStore {
     List<Conversation> userConversations = new ArrayList<>();
 
     for (Conversation conversation : conversations) {
-      if (conversation.isNormalConversation()) {
-        userConversations.add(conversation);
-      } else if (conversation.isUserInConversation(username)) {
-        // not a normal conversation, check if the user is in the user List of the conversation
+      if (conversation.isUserInConversation(username)) {
         userConversations.add(conversation);
       }
-
     }
 
     return userConversations;
@@ -148,6 +144,10 @@ public class ConversationStore {
   public void deleteAllConversations() {
     persistentStorageAgent.deleteAllConversations(conversations);
     conversations.clear();
+  }
+
+  public void updateConversation(Conversation conversation) {
+    persistentStorageAgent.updateConversation(conversation);
   }
 
 }

@@ -115,6 +115,11 @@ public class PersistentStorageAgent {
     persistentDataStore.writeThrough(conversation);
   }
 
+  /** Update a Conversation object's user list in the Datastore service */
+  public void updateConversation(Conversation conversation) {
+    persistentDataStore.updateConversation(conversation);
+  }
+
   /** Write a Conversation object to the Datastore service. */
   public void writeThrough(Message message) {
     persistentDataStore.writeThrough(message);

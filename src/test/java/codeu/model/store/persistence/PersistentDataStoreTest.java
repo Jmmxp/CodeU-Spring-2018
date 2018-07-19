@@ -1,13 +1,15 @@
 package codeu.model.store.persistence;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import codeu.model.data.Conversation;
 import codeu.model.data.Message;
 import codeu.model.data.User;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -83,7 +85,11 @@ public class PersistentDataStoreTest {
     UUID ownerTwo = UUID.fromString("10000003-2222-3333-4444-555555555555");
     String titleTwo = "Test_Title_Two";
     Instant creationTwo = Instant.ofEpochMilli(2000);
-    Conversation inputConversationTwo = new Conversation(idTwo, ownerTwo, titleTwo, creationTwo);
+    String[] users = {"Cynthia", "Justin", "Sergio", "Vasu"};
+    List<String> usersList = Arrays.asList(users);
+
+    Conversation inputConversationTwo = new Conversation(idTwo, ownerTwo, titleTwo, creationTwo, usersList,
+            ConversationType.GROUP);
 
     // save
     persistentDataStore.writeThrough(inputConversationOne);
@@ -104,6 +110,8 @@ public class PersistentDataStoreTest {
     Assert.assertEquals(ownerTwo, resultConversationTwo.getOwnerId());
     Assert.assertEquals(titleTwo, resultConversationTwo.getTitle());
     Assert.assertEquals(creationTwo, resultConversationTwo.getCreationTime());
+    Assert.assertEquals(new HashSet<>(usersList), new HashSet<>(resultConversationTwo.getUsers()));
+    Assert.assertEquals(ConversationType.GROUP, resultConversationTwo.getConversationType());
   }
 
   @Test

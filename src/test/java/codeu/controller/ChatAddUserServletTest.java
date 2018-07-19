@@ -14,27 +14,30 @@
 
 package codeu.controller;
 
-import static codeu.model.data.Conversation.ConversationType;
-
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
-import codeu.model.store.basic.MessageStore;
 import codeu.model.store.basic.UserStore;
+import codeu.model.store.persistence.PersistentStorageAgent;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+
+import static codeu.model.data.Conversation.ConversationType;
 
 public class ChatAddUserServletTest {
 
@@ -42,10 +45,19 @@ public class ChatAddUserServletTest {
     private HttpServletRequest mockRequest;
     private HttpSession mockSession;
     private HttpServletResponse mockResponse;
-    private RequestDispatcher mockRequestDispatcher;
     private ConversationStore mockConversationStore;
-    private MessageStore mockMessageStore;
     private UserStore mockUserStore;
+    private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+
+    @Before
+    public void setUp() {
+        helper.setUp();
+    }
+
+    @After
+    public void tearDown() {
+        helper.tearDown();
+    }
 
     @Before
     public void setup() {
@@ -102,6 +114,9 @@ public class ChatAddUserServletTest {
                 .sendRedirect("/chat/" + fakeConversation.getTitle());
     }
 
+    // TODO: figure out problem of inadvertently accessing a real store in a test (addUser has to
+    // tell the Datastore service to update the list of users for the conversation)
+    // Error:
     @Test
     public void testDoPost_AddValidUserToConversation() throws IOException, ServletException {
         Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/add-user/test_conversation");

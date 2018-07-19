@@ -126,7 +126,7 @@ public class ConversationServletTest {
   }
 
   @Test
-  public void testDoPost_ConversationNameTaken() throws IOException, ServletException {
+  public void testDoPost_ConversationNameTakenCanAccess() throws IOException, ServletException {
     Mockito.when(mockRequest.getParameter("conversationTitle")).thenReturn("test_conversation");
     Mockito.when(mockSession.getAttribute("user")).thenReturn("test_username");
 
@@ -139,12 +139,40 @@ public class ConversationServletTest {
     Mockito.when(mockUserStore.getUser("test_username")).thenReturn(fakeUser);
 
     Mockito.when(mockConversationStore.isTitleTaken("test_conversation")).thenReturn(true);
+    Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation",
+            Instant.now());
+    Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation")).thenReturn(conversation);
 
     conversationServlet.doPost(mockRequest, mockResponse);
 
     Mockito.verify(mockConversationStore, Mockito.never())
         .addConversation(Mockito.any(Conversation.class));
     Mockito.verify(mockResponse).sendRedirect("/chat/test_conversation");
+  }
+
+  @Test
+  public void testDoPost_ConversationNameTakenCantAccess() throws IOException, ServletException {
+    Mockito.when(mockRequest.getParameter("conversationTitle")).thenReturn("test_conversation");
+    Mockito.when(mockSession.getAttribute("user")).thenReturn("test_username");
+
+    User fakeUser =
+            new User(
+                    UUID.randomUUID(),
+                    "test_username",
+                    "$2a$10$eDhncK/4cNH2KE.Y51AWpeL8/5znNBQLuAFlyJpSYNODR/SJQ/Fg6",
+                    Instant.now());
+    Mockito.when(mockUserStore.getUser("test_username")).thenReturn(fakeUser);
+    Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation",
+            Instant.now(), new ArrayList<>(), ConversationType.GROUP);
+    Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation")).thenReturn(conversation);
+
+    Mockito.when(mockConversationStore.isTitleTaken("test_conversation")).thenReturn(true);
+
+    conversationServlet.doPost(mockRequest, mockResponse);
+
+    Mockito.verify(mockConversationStore, Mockito.never())
+            .addConversation(Mockito.any(Conversation.class));
+    Mockito.verify(mockRequestDispatcher).forward(mockRequest, mockResponse);
   }
 
   @Test

@@ -213,6 +213,24 @@ public class PersistentDataStore {
     datastore.put(conversationEntity);
   }
 
+  public void updateConversation(Conversation conversation) {
+      Key conversationKey = KeyFactory.createKey("chat-conversations", conversation.getId().toString());
+      Entity conversationEntity;
+
+      try {
+          conversationEntity = datastore.get(conversationKey);
+      } catch (EntityNotFoundException e) {
+          e.printStackTrace();
+          return;
+      }
+
+      // this line prevents ChatAddUserServletTest from NPE during doPostAddUser test
+      if (conversationEntity == null) return;
+
+      conversationEntity.setProperty("users", conversation.getUsers());
+      datastore.put(conversationEntity);
+  }
+
   /** Write a Profile object to the Datastore service. */
 	public void writeThrough(Profile profile) {
 		Query query = new Query("user-profiles");

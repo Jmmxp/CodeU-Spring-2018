@@ -14,6 +14,7 @@
 
 package codeu.model.data;
 
+import codeu.model.store.basic.ConversationStore;
 import jdk.internal.jline.internal.Nullable;
 
 import java.time.Instant;
@@ -72,17 +73,22 @@ public class Conversation {
     this.title = title;
 
     // Check if list of Users or Strings was given
-    if (users.get(0) instanceof User) {
-      List<String> usernames = new ArrayList<>();
-      for (User user : (List<User>) users) {
-        usernames.add(user.getName());
+    if (users.size() != 0) {
+      if (users.get(0) instanceof User) {
+        List<String> usernames = new ArrayList<>();
+        for (User user : (List<User>) users) {
+          usernames.add(user.getName());
+        }
+        this.users = usernames;
+      } else if (users.get(0) instanceof String) {
+        this.users = (List<String>) users;
+      } else {
+        throw new IllegalArgumentException("Users list should be of type User or String!");
       }
-      this.users = usernames;
-    } else if (users.get(0) instanceof String) {
-      this.users = (List<String>) users;
     } else {
-      throw new IllegalArgumentException("Users list should be of type User or String!");
+      this.users = new ArrayList<>();
     }
+
 
     this.conversationType = conversationType;
   }
@@ -126,6 +132,7 @@ public class Conversation {
       return false;
     }
     users.add(user.getName());
+    ConversationStore.getInstance().updateConversation(this);
     return true;
   }
 
@@ -137,6 +144,7 @@ public class Conversation {
       return false;
     }
     users.add(username);
+    ConversationStore.getInstance().updateConversation(this);
     return true;
   }
 
@@ -155,9 +163,15 @@ public class Conversation {
     return conversationType == ConversationType.GROUP;
   }
 
-  /** Returns whether or not the user is the user List for this Conversation */
+  /** Returns whether or not the user can access this conversation */
   public boolean isUserInConversation(String username) {
-    if (username == null || isNormalConversation()) {
+    if (isNormalConversation()) {
+      return true;
+    }
+
+    // this username null check needs to be under normal conversation check
+    // if user is not logged in they are still able to access the conversation
+    if (username == null) {
       return false;
     }
 
