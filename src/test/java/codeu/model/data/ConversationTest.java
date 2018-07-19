@@ -88,4 +88,21 @@ public class ConversationTest {
     Assert.assertEquals(conversation.isUserInConversation("Test_Name2"), false);
   }
 
+  @Test
+  public void testGetDirectConversationTitle() {
+    UUID id = UUID.randomUUID();
+    UUID owner = UUID.randomUUID();
+    String title = "Test_Title";
+    Instant creation = Instant.now();
+    List<User> users = new ArrayList<>();
+    users.add(new User(UUID.randomUUID(), "Justin", "Test_Hash", Instant.now()));
+    users.add(new User(UUID.randomUUID(), "Cynthia", "Test_Hash2", Instant.now()));
+
+    Conversation conversation = new Conversation(id, owner, title, creation, users, ConversationType.DIRECT);
+
+    // If logged in as Justin, the DM between Justin and Cynthia should have the title 'Cynthia', and vice versa
+    Assert.assertEquals("Cynthia", conversation.getDirectConversationTitle("Justin"));
+    Assert.assertEquals("Justin", conversation.getDirectConversationTitle("Cynthia"));
+  }
+
 }

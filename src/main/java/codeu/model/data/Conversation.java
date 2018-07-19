@@ -173,12 +173,13 @@ public class Conversation {
 
   /**
    * @param currentUser The username of the currently logged in user
-   * returns the title of the DM conversation by checking the username besides currentUser
+   * @return String the title of the direct conversation by checking the username besides currentUser
+   * if the conversation is not direct then return the default title
    * */
   @Nullable
   public String getDirectConversationTitle(String currentUser) {
     if (!isDirectConversation()) {
-      return null;
+      return title;
     }
 
     String userOne = users.get(0);
@@ -189,7 +190,7 @@ public class Conversation {
       return userOne;
     }
 
-    return null;
+    return title;
   }
 
 }

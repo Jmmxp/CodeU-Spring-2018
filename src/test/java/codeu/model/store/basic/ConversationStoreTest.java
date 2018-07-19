@@ -4,9 +4,8 @@ import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,6 +125,35 @@ public class ConversationStoreTest {
 
     Assert.assertEquals(conversationStore.getDirectMessageWithUsers("Justin", "Cynthia"), conversation);
     Assert.assertNull(conversationStore.getDirectMessageWithUsers("Cynthia", "Vasu"));
+  }
+
+  @Test
+  public void testGetConversationsForUser() {
+    List<String> usersOne = new ArrayList<>();
+    List<String> usersTwo = new ArrayList<>();
+
+    usersOne.add("Cynthia");
+    usersTwo.add("Vasu");
+
+    Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
+            Instant.now(), usersOne, ConversationType.DIRECT);
+
+    Conversation conversationTwo = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
+            Instant.now(), usersTwo, ConversationType.DIRECT);
+
+    conversationStore.addConversation(conversation);
+    conversationStore.addConversation(conversationTwo);
+    Assert.assertEquals(3, conversationStore.getNumConversations());
+
+    Set<Conversation> expectedConversations = new HashSet<>();
+    expectedConversations.add(conversation);
+    expectedConversations.add(CONVERSATION_ONE);
+
+    Set<Conversation> actualConversations = new HashSet<>
+            ((conversationStore.getConversationsForUser("Cynthia")));
+
+    Assert.assertEquals(expectedConversations, actualConversations);
+    Assert.assertEquals(2, actualConversations.size());
   }
 
   private void assertEquals(Conversation expectedConversation, Conversation actualConversation) {
