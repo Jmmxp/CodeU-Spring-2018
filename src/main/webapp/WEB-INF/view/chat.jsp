@@ -71,7 +71,14 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 
   <div id="container">
 
-    <h1><%= conversation.getTitle() %>
+    <%
+      String conversationTitle = conversation.getTitle();
+      if (conversation.isDirectConversation() && user != null) {
+        conversationTitle = conversation.getDirectConversationTitle(user);
+      }
+    %>
+    <h1>
+      <%= conversationTitle %>
       <a href="" style="float: right">&#8635;</a></h1>
 
     <hr/>
@@ -100,7 +107,7 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
         <button type="submit" name="sendMessage">Send</button>
     </form>
 
-      <% if (conversation.isGroupMessage()) {
+      <% if (conversation.isGroupConversation()) {
 		// check if group convo owner is current user
 	  	String name = UserStore.getInstance().getUser(conversation.getOwnerId())
 		 	.getName();

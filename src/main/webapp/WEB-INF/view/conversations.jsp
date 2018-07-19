@@ -87,7 +87,10 @@ String user = (String) request.getSession().getAttribute("user");
     <%
       for(Conversation conversation : conversations){
     %>
-      <% if (conversation.isNormalConversation() || (user != null && conversation.isUserInConversation(user))) { %>
+      <% if (conversation.isGroupConversation()) { %>
+        <li><a href="/chat/<%= conversation.getTitle() %>">
+          <%= conversation.getTitle() %></a> <i>Group</i></li>
+      <% } else if (conversation.isNormalConversation()) { %>
         <li><a href="/chat/<%= conversation.getTitle() %>">
           <%= conversation.getTitle() %></a></li>
       <% } %>
@@ -99,6 +102,30 @@ String user = (String) request.getSession().getAttribute("user");
     }
     %>
     <hr/>
+
+    <%
+    if (user != null) {
+    %>
+      <h1>Direct Messages</h1>
+      <ul class="mdl-list">
+    <%
+      for(Conversation conversation : conversations){
+    %>
+      <% if (conversation.isDirectConversation()) { %>
+        <li><a href="/chat/<%= conversation.getTitle() %>">
+          <%= conversation.getDirectConversationTitle(user) %></a></li>
+      <% } %>
+    <%
+      }
+    %>
+      </ul>
+      <hr/>
+    <%
+    }
+    %>
+
+
+
   </div>
 </body>
 </html>

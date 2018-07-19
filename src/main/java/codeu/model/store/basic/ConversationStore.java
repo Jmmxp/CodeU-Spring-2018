@@ -15,7 +15,6 @@
 package codeu.model.store.basic;
 
 import codeu.model.data.Conversation;
-import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +121,7 @@ public class ConversationStore {
    * @return The Conversation if it exists, null otherwise */
   public Conversation getDirectMessageWithUsers(String username1, String username2) {
     for (Conversation conversation : conversations) {
-      if (conversation.isDirectMessage()) {
+      if (conversation.isDirectConversation()) {
         List<String> usernames = conversation.getUsers();
         String user1 = usernames.get(0);
         String user2 = usernames.get(1);

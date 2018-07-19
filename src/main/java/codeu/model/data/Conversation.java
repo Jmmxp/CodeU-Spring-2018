@@ -146,12 +146,12 @@ public class Conversation {
   }
 
   /** Returns whether or not this Conversation is a direct message conversation */
-  public boolean isDirectMessage() {
+  public boolean isDirectConversation() {
     return conversationType == ConversationType.DIRECT;
   }
 
-  /** Returns whether or not this Conversation is a direct message conversation */
-  public boolean isGroupMessage() {
+  /** Returns whether or not this Conversation is a group conversation */
+  public boolean isGroupConversation() {
     return conversationType == ConversationType.GROUP;
   }
 
@@ -176,8 +176,8 @@ public class Conversation {
    * returns the title of the DM conversation by checking the username besides currentUser
    * */
   @Nullable
-  public String getDirectMessageTitle(String currentUser) {
-    if (!isDirectMessage()) {
+  public String getDirectConversationTitle(String currentUser) {
+    if (!isDirectConversation()) {
       return null;
     }
 

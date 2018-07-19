@@ -71,7 +71,9 @@ public class ConversationServletTest {
     List<Conversation> fakeConversationList = new ArrayList<>();
     fakeConversationList.add(
         new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now()));
-    Mockito.when(mockConversationStore.getAllConversations()).thenReturn(fakeConversationList);
+    // Get conversations for user that is not logged in
+    Mockito.when(mockConversationStore.getConversationsForUser(null)).thenReturn(fakeConversationList);
+    Mockito.when(mockSession.getAttribute("user")).thenReturn(null);
 
     conversationServlet.doGet(mockRequest, mockResponse);
 
