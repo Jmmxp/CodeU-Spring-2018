@@ -123,9 +123,9 @@ public class ConversationStore {
   public Conversation getDirectMessageWithUsers(String username1, String username2) {
     for (Conversation conversation : conversations) {
       if (conversation.isDirectMessage()) {
-        List<User> users = conversation.getUsers();
-        String user1 = users.get(0).getName();
-        String user2 = users.get(1).getName();
+        List<String> usernames = conversation.getUsers();
+        String user1 = usernames.get(0);
+        String user2 = usernames.get(1);
         if ((user1.equals(username1) && user2.equals(username2)) ||
                 (user1.equals(username2) && user2.equals(username1))) {
           return conversation;

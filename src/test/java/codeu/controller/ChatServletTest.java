@@ -119,8 +119,12 @@ public class ChatServletTest {
     Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/private_conversation");
     Mockito.when(mockSession.getAttribute("user")).thenReturn(null);
 
+    List<String> users = new ArrayList<>();
+    users.add("UserOne");
+    users.add("UserTwo");
+
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "private_conversation",
-            Instant.now(), new ArrayList<>(), ConversationType.DIRECT);
+            Instant.now(), users, ConversationType.DIRECT);
     Mockito.when(mockConversationStore.getConversationWithTitle("private_conversation"))
             .thenReturn(conversation);
 

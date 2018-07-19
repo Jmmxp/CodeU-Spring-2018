@@ -14,7 +14,7 @@
 
 package codeu.model.data;
 
-import codeu.model.store.basic.UserStore;
+import jdk.internal.jline.internal.Nullable;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class Conversation {
   public final UUID owner;
   public final Instant creation;
   public final String title;
-  public final List<User> users;
+  public final List<String> users;
   public final ConversationType conversationType;
 
   public enum ConversationType {
@@ -55,22 +55,35 @@ public class Conversation {
   }
 
   /**
-   * Constructs a new Conversation.
+   * Constructs a new Direct Message or Group Conversation.
    *
    * @param id the ID of this Conversation
    * @param owner the ID of the User who created this Conversation
    * @param title the title of this Conversation
    * @param creation the creation time of this Conversation
-   * @param users the Users that will be able to access and chat in this conversation
+   * @param users the Users or user names that will be able to access and chat in this conversation
    * @param conversationType the type of Conversation
    */
-  public Conversation(UUID id, UUID owner, String title, Instant creation, List<User> users,
+  public Conversation(UUID id, UUID owner, String title, Instant creation, List<?> users,
                       ConversationType conversationType) {
     this.id = id;
     this.owner = owner;
     this.creation = creation;
     this.title = title;
-    this.users = users;
+
+    // Check if list of Users or Strings was given
+    if (users.get(0) instanceof User) {
+      List<String> usernames = new ArrayList<>();
+      for (User user : (List<User>) users) {
+        usernames.add(user.getName());
+      }
+      this.users = usernames;
+    } else if (users.get(0) instanceof String) {
+      this.users = (List<String>) users;
+    } else {
+      throw new IllegalArgumentException("Users list should be of type User or String!");
+    }
+
     this.conversationType = conversationType;
   }
 
@@ -94,8 +107,8 @@ public class Conversation {
     return creation;
   }
 
-  /** Returns the list of users that can access and chat in this Conversation */
-  public List<User> getUsers() {
+  /** Returns the list of usernames that can access and chat in this Conversation */
+  public List<String> getUsers() {
     return users;
   }
 
@@ -108,24 +121,23 @@ public class Conversation {
     return conversationType;
   }
 
-  public void addUser(User user) {
-    users.add(user);
+  public boolean addUser(User user) {
+    if (user == null) {
+      return false;
+    }
+    users.add(user.getName());
+    return true;
   }
 
   /** Adds a user to the user List by using their username
    * @param username Username of the user to add
    * @return boolean whether or not the user was found and added into the List */
   public boolean addUser(String username) {
-    if (username == null) return false;
-
-    // TODO: refactor this to make it work with tests(originally used this to add users in ProfilePageServlet doPost)
-    User user = UserStore.getInstance().getUser(username);
-    if (user != null) {
-      users.add(user);
-      return true;
+    if (username == null) {
+      return false;
     }
-
-    return false;
+    users.add(username);
+    return true;
   }
 
   /** Returns whether or not this Conversation is a normal conversation */
@@ -149,14 +161,35 @@ public class Conversation {
       return false;
     }
 
-    for (User user : users) {
-      if (username.equals(user.getName())) {
+    for (String username2 : users) {
+      if (username.equals(username2)) {
         return true;
       }
     }
 
     return false;
 
+  }
+
+  /**
+   * @param currentUser The username of the currently logged in user
+   * returns the title of the DM conversation by checking the username besides currentUser
+   * */
+  @Nullable
+  public String getDirectMessageTitle(String currentUser) {
+    if (!isDirectMessage()) {
+      return null;
+    }
+
+    String userOne = users.get(0);
+    String userTwo = users.get(1);
+    if (currentUser.equals(userOne)) {
+      return userTwo;
+    } else if (currentUser.equals(userTwo)) {
+      return userOne;
+    }
+
+    return null;
   }
 
 }

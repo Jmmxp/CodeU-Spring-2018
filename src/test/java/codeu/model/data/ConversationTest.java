@@ -31,8 +31,8 @@ public class ConversationTest {
     UUID owner = UUID.randomUUID();
     String title = "Test_Title";
     Instant creation = Instant.now();
-    List<User> users = new ArrayList<>();
-    users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
+    List<String> users = new ArrayList<>();
+    users.add("Test_User");
     ConversationType conversationType = ConversationType.NORMAL;
 
     Conversation conversation = new Conversation(id, owner, title, creation, users, conversationType);
