@@ -89,6 +89,7 @@ String user = (String) request.getSession().getAttribute("user");
       </ul>
       <h2>Developers</h2>
       <ul>
+        <li><strong>Vasuman Ravichandran:</strong> Git Rekt's CodeU project advisor.</li>
         <li><strong>Cynthia Serrano Najera:</strong> Is a student at Wellesley
             College and studies Computer Science and Latinx Studies. She has an
             interest in photography and comic books.</li>
