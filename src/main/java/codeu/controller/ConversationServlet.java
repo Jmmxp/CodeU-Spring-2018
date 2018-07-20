@@ -118,15 +118,16 @@ public class ConversationServlet extends HttpServlet {
     }
 
     if (conversationStore.isTitleTaken(conversationTitle)) {
-      // conversation title is already taken, just go into that conversation instead of creating a new one
+      // title is already taken, if user can access then just go into that conversation instead of creating a new one
       Conversation conversation = conversationStore.getConversationWithTitle(conversationTitle);
       if (conversation.isUserInConversation(username)) {
         response.sendRedirect("/chat/" + conversationTitle);
+        return;
       } else {
-        request.setAttribute("error", "That conversation title is already taken for a group conversation!");
+        request.setAttribute("error", "That title is already taken by a group conversation!");
         request.getRequestDispatcher("/WEB-INF/view/conversations.jsp").forward(request, response);
+        return;
       }
-      return;
     }
 
     Conversation conversation;

@@ -19,6 +19,7 @@
 
 <%
 String user = (String) request.getSession().getAttribute("user");
+List<Conversation> conversations = (List<Conversation>) request.getAttribute("conversations");
 %>
 
 <!DOCTYPE html>
@@ -74,9 +75,7 @@ String user = (String) request.getSession().getAttribute("user");
     <h1>Conversations</h1>
 
     <%
-    List<Conversation> conversations =
-      (List<Conversation>) request.getAttribute("conversations");
-    if(conversations == null || conversations.isEmpty()){
+    if(conversations == null || conversations.isEmpty()) {
     %>
       <p>Create a conversation to get started.</p>
     <%
@@ -85,7 +84,7 @@ String user = (String) request.getSession().getAttribute("user");
     %>
       <ul class="mdl-list">
     <%
-      for(Conversation conversation : conversations){
+      for(Conversation conversation : conversations) {
     %>
       <% if (conversation.isGroupConversation()) { %>
         <li><a href="/chat/<%= conversation.getTitle() %>">
@@ -104,12 +103,12 @@ String user = (String) request.getSession().getAttribute("user");
     <hr/>
 
     <%
-    if (user != null) {
+    if (user != null && conversations != null && !conversations.isEmpty()) {
     %>
       <h1>Direct Messages</h1>
       <ul class="mdl-list">
     <%
-      for(Conversation conversation : conversations){
+      for (Conversation conversation : conversations) {
     %>
       <% if (conversation.isDirectConversation()) { %>
         <li><a href="/chat/<%= conversation.getTitle() %>">
