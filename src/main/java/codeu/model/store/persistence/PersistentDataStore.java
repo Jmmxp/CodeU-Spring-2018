@@ -225,7 +225,7 @@ public class PersistentDataStore {
       }
 
       // this line prevents ChatAddUserServletTest from NPE during doPostAddUser test
-      if (conversationEntity == null) return;
+//      if (conversationEntity == null) return;
 
       conversationEntity.setProperty("users", conversation.getUsers());
       datastore.put(conversationEntity);

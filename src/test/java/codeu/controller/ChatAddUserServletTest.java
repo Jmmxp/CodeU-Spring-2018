@@ -19,6 +19,9 @@ import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
 import codeu.model.store.basic.UserStore;
 import codeu.model.store.persistence.PersistentStorageAgent;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import org.junit.After;
@@ -114,9 +117,6 @@ public class ChatAddUserServletTest {
                 .sendRedirect("/chat/" + fakeConversation.getTitle());
     }
 
-    // TODO: figure out problem of inadvertently accessing a real store in a test (addUser has to
-    // tell the Datastore service to update the list of users for the conversation)
-    // Error:
     @Test
     public void testDoPost_AddValidUserToConversation() throws IOException, ServletException {
         Mockito.when(mockRequest.getRequestURI()).thenReturn("/chat/add-user/test_conversation");
@@ -138,6 +138,10 @@ public class ChatAddUserServletTest {
                         ConversationType.GROUP);
         Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
                 .thenReturn(fakeConversation);
+
+        // Add the conversation to the fake datastore so addUser() can update the conversation later
+        DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+        datastoreService.put(new Entity("chat-conversations", fakeConversation.getId().toString()));
 
         User addedUser =
                 new User(

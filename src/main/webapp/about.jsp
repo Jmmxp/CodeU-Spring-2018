@@ -66,7 +66,7 @@ String user = (String) request.getSession().getAttribute("user");
             name in a Conversation! Profile pages have an "About Me" section which
             can be updated.</li>
 
-        <li><strong>HTML tags in messages:</strong> Almost all HTML tags can be
+        <li><strong>Styled Text:</strong> Almost all HTML tags can be
             used in messages, the exception being some potentially 'dangerous'
             tags like &lt;img&gt; and &lt;a&gt;!</li>
 
@@ -84,7 +84,7 @@ String user = (String) request.getSession().getAttribute("user");
             by ticking the "Group" checkbox before you create the conversation.
             The creator will be able to add other users to the group conversation
             through an "Add User" input box. Only the creator and users that are
-            added to the conversation can chat and access in it.</li>
+            added to the conversation can access it.</li>
 
       </ul>
       <h2>Developers</h2>
