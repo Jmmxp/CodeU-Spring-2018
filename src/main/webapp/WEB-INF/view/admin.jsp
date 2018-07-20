@@ -59,9 +59,6 @@ int numConversations = ConversationStore.getInstance().getNumConversations();
   <div id="container">
     <div
       style="width:75%; margin-left:auto; margin-right:auto; margin-top: 50px;">
-      <% if (message != null) { %>
-        <p><%= message %></p>
-      <% } %>
 
       <% if (AdminHelper.isAdmin(user)) { %>
 
@@ -69,6 +66,7 @@ int numConversations = ConversationStore.getInstance().getNumConversations();
           <hr />
           <h2>Site Statistics</h2>
 
+          <p>Hello <%= user %>! Welcome to the admin page!</p>
           <p>Here are some site stats:</p>
 
           <ul>
@@ -76,12 +74,14 @@ int numConversations = ConversationStore.getInstance().getNumConversations();
             <li><b>Messages: </b><%= numMessages%></li>
             <li><b>Conversations: </b><%= numConversations%></li>
           </ul>
+          <p>
 
 		  <form method="post" action="${pageContext.request.contextPath}/admin">
 			  <input type="submit" name="deleteUsersButton" value="Delete All Users" disabled/>
 			  <input type="submit" name="deleteMessagesButton" value="Delete All Messages" disabled/>
 			  <input type="submit" name="deleteConversationsButton" value="Delete All Conversations" disabled/>
 		  </form>
+          <p>Sorry, these buttons have been disabled for the Showcase! :)</p>
 
       <% } %>
 

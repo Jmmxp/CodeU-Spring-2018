@@ -33,7 +33,7 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 
   <style>
     #chat {
-      background-color: white;
+      background-color: #fcf8de;
       height: 500px;
       overflow-y: scroll
     }
@@ -103,7 +103,6 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
     <% if (user != null) { %>
     <form action="/chat/<%= conversation.getTitle() %>" method="POST">
         <input type="text" name="message">
-        <br/>
         <button type="submit" name="sendMessage">Send</button>
     </form>
 
@@ -115,7 +114,6 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 		%>
 	    <form action="/chat/add-user/<%= conversation.getTitle() %>" method="POST">
 	        <input type="text" name="newUser">
-	        <br/>
 	        <button type="submit" name="addNewUser">Add User</button>
 	    </form>
 	  <% }
