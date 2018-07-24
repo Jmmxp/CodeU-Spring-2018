@@ -15,8 +15,8 @@
 package codeu.model.data;
 
 import codeu.model.store.basic.ConversationStore;
-import jdk.internal.jline.internal.Nullable;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,10 +175,9 @@ public class Conversation {
       return false;
     }
 
-    for (String username2 : users) {
-      if (username.equals(username2)) {
-        return true;
-      }
+    if (users.indexOf(username) != -1) {
+      // the user exists in the users list
+      return true;
     }
 
     return false;

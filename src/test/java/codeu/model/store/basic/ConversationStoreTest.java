@@ -1,5 +1,6 @@
 package codeu.model.store.basic;
 
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
@@ -114,11 +115,11 @@ public class ConversationStoreTest {
     users.add(userOne);
     users.add(userTwo);
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-            Instant.now(), users, ConversationType.DIRECT);
+            Instant.now(), ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 
     users.add(userThree);
     Conversation conversationTwo = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-            Instant.now(), users, ConversationType.DIRECT);
+            Instant.now(), ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 
     conversationStore.addConversation(conversation);
     conversationStore.addConversation(conversationTwo);

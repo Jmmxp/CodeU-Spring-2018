@@ -12,14 +12,12 @@ public class AdminHelper {
         if (user == null)
             return false;
 
-        return true;
-
-//        String[] admins = {"cynthia", "justin", "sergio", "vasuman"};
-//        for (String admin : admins) {
-//            if (admin.equals(user.toLowerCase()))
-//                return true;
-//        }
-//        return false;
+        String[] admins = {"cynthia", "justin", "sergio", "vasuman"};
+        for (String admin : admins) {
+            if (admin.equals(user.toLowerCase()))
+                return true;
+        }
+        return false;
     }
 
 }

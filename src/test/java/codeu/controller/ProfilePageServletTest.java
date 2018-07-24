@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
@@ -159,7 +160,7 @@ public class ProfilePageServletTest {
 		users.add(userOne);
 		users.add(userTwo);
 		Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-				Instant.now(), users, ConversationType.DIRECT);
+				Instant.now(), ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 
 		fakeConversationStore.addConversation(conversation);
 		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);
@@ -200,7 +201,7 @@ public class ProfilePageServletTest {
 		users.add(userOne);
 		users.add(userTwo);
 		Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
-				Instant.now(), users, ConversationType.DIRECT);
+				Instant.now(), ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 
 		fakeConversationStore.addConversation(conversation);
 		Assert.assertEquals(fakeConversationStore.getNumConversations(), 1);

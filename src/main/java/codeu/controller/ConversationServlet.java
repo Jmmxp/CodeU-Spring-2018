@@ -16,6 +16,7 @@ package codeu.controller;
 
 import static codeu.model.data.Conversation.ConversationType;
 
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
@@ -132,8 +133,8 @@ public class ConversationServlet extends HttpServlet {
 
     Conversation conversation;
     if (request.getParameter("newGroupConversation") != null) {
-      List<User> users = new ArrayList<>();
-      users.add(user);
+      List<String> users = new ArrayList<>();
+      users.add(username);
       conversation = new Conversation(UUID.randomUUID(), user.getId(), conversationTitle, Instant.now(),
               users, ConversationType.GROUP);
     } else {

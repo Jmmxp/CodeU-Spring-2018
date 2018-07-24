@@ -14,6 +14,7 @@
 
 package codeu.controller;
 
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
@@ -96,8 +97,8 @@ public class ChatAddUserServletTest {
         users.add(fakeUser);
 
         Conversation fakeConversation =
-                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(), users,
-                        ConversationType.GROUP);
+                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(),
+                        ConversationHelper.getUsernamesFromUsers(users), ConversationType.GROUP);
         Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
                 .thenReturn(fakeConversation);
 
@@ -134,8 +135,8 @@ public class ChatAddUserServletTest {
         users.add(fakeUser);
 
         Conversation fakeConversation =
-                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(), users,
-                        ConversationType.GROUP);
+                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(),
+                        ConversationHelper.getUsernamesFromUsers(users), ConversationType.GROUP);
         Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
                 .thenReturn(fakeConversation);
 
