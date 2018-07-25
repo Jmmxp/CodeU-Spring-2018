@@ -16,6 +16,7 @@ package codeu.controller;
 
 import static codeu.model.data.Conversation.ConversationType;
 
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
@@ -73,7 +74,9 @@ public class ConversationServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
-    List<Conversation> conversations = conversationStore.getAllConversations();
+    String user = (String) request.getSession().getAttribute("user");
+
+    List<Conversation> conversations = conversationStore.getConversationsForUser(user);
     request.setAttribute("conversations", conversations);
     request.getRequestDispatcher("/WEB-INF/view/conversations.jsp").forward(request, response);
   }
@@ -116,15 +119,22 @@ public class ConversationServlet extends HttpServlet {
     }
 
     if (conversationStore.isTitleTaken(conversationTitle)) {
-      // conversation title is already taken, just go into that conversation instead of creating a new one
-      response.sendRedirect("/chat/" + conversationTitle);
-      return;
+      // title is already taken, if user can access then just go into that conversation instead of creating a new one
+      Conversation conversation = conversationStore.getConversationWithTitle(conversationTitle);
+      if (conversation.isUserInConversation(username)) {
+        response.sendRedirect("/chat/" + conversationTitle);
+        return;
+      } else {
+        request.setAttribute("error", "That title is already taken by a group conversation!");
+        request.getRequestDispatcher("/WEB-INF/view/conversations.jsp").forward(request, response);
+        return;
+      }
     }
 
     Conversation conversation;
     if (request.getParameter("newGroupConversation") != null) {
-      List<User> users = new ArrayList<>();
-      users.add(user);
+      List<String> users = new ArrayList<>();
+      users.add(username);
       conversation = new Conversation(UUID.randomUUID(), user.getId(), conversationTitle, Instant.now(),
               users, ConversationType.GROUP);
     } else {

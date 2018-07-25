@@ -14,8 +14,9 @@
 
 package codeu.model.data;
 
-import codeu.model.store.basic.UserStore;
+import codeu.model.store.basic.ConversationStore;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class Conversation {
   public final UUID owner;
   public final Instant creation;
   public final String title;
-  public final List<User> users;
+  public final List<String> users;
   public final ConversationType conversationType;
 
   public enum ConversationType {
@@ -55,22 +56,40 @@ public class Conversation {
   }
 
   /**
-   * Constructs a new Conversation.
+   * Constructs a new Direct Message or Group Conversation.
    *
    * @param id the ID of this Conversation
    * @param owner the ID of the User who created this Conversation
    * @param title the title of this Conversation
    * @param creation the creation time of this Conversation
-   * @param users the Users that will be able to access and chat in this conversation
+   * @param users the Users or user names that will be able to access and chat in this conversation
    * @param conversationType the type of Conversation
    */
-  public Conversation(UUID id, UUID owner, String title, Instant creation, List<User> users,
+  public Conversation(UUID id, UUID owner, String title, Instant creation, List<?> users,
                       ConversationType conversationType) {
     this.id = id;
     this.owner = owner;
     this.creation = creation;
     this.title = title;
-    this.users = users;
+
+    // Check if list of Users or Strings was given
+    if (users.size() != 0) {
+      if (users.get(0) instanceof User) {
+        List<String> usernames = new ArrayList<>();
+        for (User user : (List<User>) users) {
+          usernames.add(user.getName());
+        }
+        this.users = usernames;
+      } else if (users.get(0) instanceof String) {
+        this.users = (List<String>) users;
+      } else {
+        throw new IllegalArgumentException("Users list should be of type User or String!");
+      }
+    } else {
+      this.users = new ArrayList<>();
+    }
+
+
     this.conversationType = conversationType;
   }
 
@@ -94,8 +113,8 @@ public class Conversation {
     return creation;
   }
 
-  /** Returns the list of users that can access and chat in this Conversation */
-  public List<User> getUsers() {
+  /** Returns the list of usernames that can access and chat in this Conversation */
+  public List<String> getUsers() {
     return users;
   }
 
@@ -108,24 +127,25 @@ public class Conversation {
     return conversationType;
   }
 
-  public void addUser(User user) {
-    users.add(user);
+  public boolean addUser(User user) {
+    if (user == null) {
+      return false;
+    }
+    users.add(user.getName());
+    ConversationStore.getInstance().updateConversation(this);
+    return true;
   }
 
   /** Adds a user to the user List by using their username
    * @param username Username of the user to add
    * @return boolean whether or not the user was found and added into the List */
   public boolean addUser(String username) {
-    if (username == null) return false;
-
-    // TODO: refactor this to make it work with tests(originally used this to add users in ProfilePageServlet doPost)
-    User user = UserStore.getInstance().getUser(username);
-    if (user != null) {
-      users.add(user);
-      return true;
+    if (username == null) {
+      return false;
     }
-
-    return false;
+    users.add(username);
+    ConversationStore.getInstance().updateConversation(this);
+    return true;
   }
 
   /** Returns whether or not this Conversation is a normal conversation */
@@ -134,29 +154,56 @@ public class Conversation {
   }
 
   /** Returns whether or not this Conversation is a direct message conversation */
-  public boolean isDirectMessage() {
+  public boolean isDirectConversation() {
     return conversationType == ConversationType.DIRECT;
   }
 
-  /** Returns whether or not this Conversation is a direct message conversation */
-  public boolean isGroupMessage() {
+  /** Returns whether or not this Conversation is a group conversation */
+  public boolean isGroupConversation() {
     return conversationType == ConversationType.GROUP;
   }
 
-  /** Returns whether or not the user is the user List for this Conversation */
+  /** Returns whether or not the user can access this conversation */
   public boolean isUserInConversation(String username) {
-    if (username == null || isNormalConversation()) {
+    if (isNormalConversation()) {
+      return true;
+    }
+
+    // this username null check needs to be under normal conversation check
+    // if user is not logged in they are still able to access the conversation
+    if (username == null) {
       return false;
     }
 
-    for (User user : users) {
-      if (username.equals(user.getName())) {
-        return true;
-      }
+    if (users.indexOf(username) != -1) {
+      // the user exists in the users list
+      return true;
     }
 
     return false;
 
+  }
+
+  /**
+   * @param currentUser The username of the currently logged in user
+   * @return String the title of the direct conversation by checking the username besides currentUser
+   * if the conversation is not direct then return the default title
+   * */
+  @Nullable
+  public String getDirectConversationTitle(String currentUser) {
+    if (!isDirectConversation()) {
+      return title;
+    }
+
+    String userOne = users.get(0);
+    String userTwo = users.get(1);
+    if (currentUser.equals(userOne)) {
+      return userTwo;
+    } else if (currentUser.equals(userTwo)) {
+      return userOne;
+    }
+
+    return title;
   }
 
 }

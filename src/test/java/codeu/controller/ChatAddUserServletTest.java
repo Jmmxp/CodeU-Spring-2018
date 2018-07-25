@@ -14,27 +14,34 @@
 
 package codeu.controller;
 
-import static codeu.model.data.Conversation.ConversationType;
-
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.User;
 import codeu.model.store.basic.ConversationStore;
-import codeu.model.store.basic.MessageStore;
 import codeu.model.store.basic.UserStore;
+import codeu.model.store.persistence.PersistentStorageAgent;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+
+import static codeu.model.data.Conversation.ConversationType;
 
 public class ChatAddUserServletTest {
 
@@ -42,10 +49,19 @@ public class ChatAddUserServletTest {
     private HttpServletRequest mockRequest;
     private HttpSession mockSession;
     private HttpServletResponse mockResponse;
-    private RequestDispatcher mockRequestDispatcher;
     private ConversationStore mockConversationStore;
-    private MessageStore mockMessageStore;
     private UserStore mockUserStore;
+    private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+
+    @Before
+    public void setUp() {
+        helper.setUp();
+    }
+
+    @After
+    public void tearDown() {
+        helper.tearDown();
+    }
 
     @Before
     public void setup() {
@@ -81,8 +97,8 @@ public class ChatAddUserServletTest {
         users.add(fakeUser);
 
         Conversation fakeConversation =
-                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(), users,
-                        ConversationType.GROUP);
+                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(),
+                        ConversationHelper.getUsernamesFromUsers(users), ConversationType.GROUP);
         Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
                 .thenReturn(fakeConversation);
 
@@ -119,10 +135,14 @@ public class ChatAddUserServletTest {
         users.add(fakeUser);
 
         Conversation fakeConversation =
-                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(), users,
-                        ConversationType.GROUP);
+                new Conversation(UUID.randomUUID(), UUID.randomUUID(), "test_conversation", Instant.now(),
+                        ConversationHelper.getUsernamesFromUsers(users), ConversationType.GROUP);
         Mockito.when(mockConversationStore.getConversationWithTitle("test_conversation"))
                 .thenReturn(fakeConversation);
+
+        // Add the conversation to the fake datastore so addUser() can update the conversation later
+        DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+        datastoreService.put(new Entity("chat-conversations", fakeConversation.getId().toString()));
 
         User addedUser =
                 new User(

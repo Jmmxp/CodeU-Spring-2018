@@ -15,7 +15,6 @@
 package codeu.model.store.basic;
 
 import codeu.model.data.Conversation;
-import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,13 +102,9 @@ public class ConversationStore {
     List<Conversation> userConversations = new ArrayList<>();
 
     for (Conversation conversation : conversations) {
-      if (conversation.isNormalConversation()) {
-        userConversations.add(conversation);
-      } else if (conversation.isUserInConversation(username)) {
-        // not a normal conversation, check if the user is in the user List of the conversation
+      if (conversation.isUserInConversation(username)) {
         userConversations.add(conversation);
       }
-
     }
 
     return userConversations;
@@ -122,10 +117,10 @@ public class ConversationStore {
    * @return The Conversation if it exists, null otherwise */
   public Conversation getDirectMessageWithUsers(String username1, String username2) {
     for (Conversation conversation : conversations) {
-      if (conversation.isDirectMessage()) {
-        List<User> users = conversation.getUsers();
-        String user1 = users.get(0).getName();
-        String user2 = users.get(1).getName();
+      if (conversation.isDirectConversation()) {
+        List<String> usernames = conversation.getUsers();
+        String user1 = usernames.get(0);
+        String user2 = usernames.get(1);
         if ((user1.equals(username1) && user2.equals(username2)) ||
                 (user1.equals(username2) && user2.equals(username1))) {
           return conversation;
@@ -149,6 +144,10 @@ public class ConversationStore {
   public void deleteAllConversations() {
     persistentStorageAgent.deleteAllConversations(conversations);
     conversations.clear();
+  }
+
+  public void updateConversation(Conversation conversation) {
+    persistentStorageAgent.updateConversation(conversation);
   }
 
 }

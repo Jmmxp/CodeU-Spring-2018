@@ -14,6 +14,7 @@
   limitations under the License.
 --%>
 
+<%@ page import="codeu.helper.AdminHelper"%>
 <%@ page import="codeu.helper.ProfileHelper"%>
 <%@ page import="codeu.model.store.basic.ProfileStore"%>
 
@@ -34,12 +35,22 @@ String profileOwner = (String) request.getAttribute("profileName");
   <nav>
     <a id="navTitle" href="/">Git Rekt's Chat App</a>
     <a href="/conversations">Conversations</a>
-    <% if (user != null){ %>
+
+    <% if(user != null){ %>
       <a href="/profile/<%= user %>">Hello <%= user %>!</a>
     <% } else{ %>
       <a href="/login">Login</a>
     <% } %>
+
     <a href="/about.jsp">About</a>
+
+    <% if (AdminHelper.isAdmin(user)) { %>
+      <a href="/admin">Admin</a>
+    <% } %>
+
+    <% if (user != null) { %>
+      <a href="/logout">Logout</a>
+    <% } %>
   </nav>
 
   <div id="container">

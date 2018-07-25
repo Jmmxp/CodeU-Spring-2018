@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import codeu.helper.ConversationHelper;
 import codeu.model.data.Conversation;
 import codeu.model.data.Profile;
 import codeu.model.data.User;
@@ -122,8 +123,8 @@ public class ProfilePageServlet extends HttpServlet {
 				UUID ownerId = userStore.getUser(user).getId();
 				conversationTitle = id.toString();
 
-				Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now(), users,
-						ConversationType.DIRECT);
+				Conversation conversation = new Conversation(id, ownerId, conversationTitle, Instant.now(),
+						ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 				conversationStore.addConversation(conversation);
 			} else {
 				conversationTitle = directMessageConversation.getTitle();

@@ -14,6 +14,8 @@
 
 package codeu.model.store.persistence;
 
+import static codeu.model.data.Conversation.ConversationType;
+
 import codeu.model.data.Conversation;
 import codeu.model.data.Message;
 import codeu.model.data.Profile;
@@ -99,7 +101,15 @@ public class PersistentDataStore {
         UUID ownerUuid = UUID.fromString((String) entity.getProperty("owner_uuid"));
         String title = (String) entity.getProperty("title");
         Instant creationTime = Instant.parse((String) entity.getProperty("creation_time"));
-        Conversation conversation = new Conversation(uuid, ownerUuid, title, creationTime);
+        ConversationType type = ConversationType.valueOf((String) entity.getProperty("type"));
+
+        Conversation conversation;
+        if (type == ConversationType.NORMAL) {
+            conversation = new Conversation(uuid, ownerUuid, title, creationTime);
+        } else {
+            List<String> users = (List<String>) entity.getProperty("users");
+            conversation = new Conversation(uuid, ownerUuid, title, creationTime, users, type);
+        }
         conversations.add(conversation);
       } catch (Exception e) {
         // In a production environment, errors should be very rare. Errors which may
@@ -198,7 +208,27 @@ public class PersistentDataStore {
     conversationEntity.setProperty("owner_uuid", conversation.getOwnerId().toString());
     conversationEntity.setProperty("title", conversation.getTitle());
     conversationEntity.setProperty("creation_time", conversation.getCreationTime().toString());
+    conversationEntity.setProperty("users", conversation.getUsers());
+    conversationEntity.setProperty("type", conversation.getConversationType().name());
     datastore.put(conversationEntity);
+  }
+
+  public void updateConversation(Conversation conversation) {
+      Key conversationKey = KeyFactory.createKey("chat-conversations", conversation.getId().toString());
+      Entity conversationEntity;
+
+      try {
+          conversationEntity = datastore.get(conversationKey);
+      } catch (EntityNotFoundException e) {
+          e.printStackTrace();
+          return;
+      }
+
+      // this line prevents ChatAddUserServletTest from NPE during doPostAddUser test
+//      if (conversationEntity == null) return;
+
+      conversationEntity.setProperty("users", conversation.getUsers());
+      datastore.put(conversationEntity);
   }
 
   /** Write a Profile object to the Datastore service. */

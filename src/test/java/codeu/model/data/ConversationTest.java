@@ -18,6 +18,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import codeu.helper.ConversationHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,8 +33,8 @@ public class ConversationTest {
     UUID owner = UUID.randomUUID();
     String title = "Test_Title";
     Instant creation = Instant.now();
-    List<User> users = new ArrayList<>();
-    users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
+    List<String> users = new ArrayList<>();
+    users.add("Test_User");
     ConversationType conversationType = ConversationType.NORMAL;
 
     Conversation conversation = new Conversation(id, owner, title, creation, users, conversationType);
@@ -68,7 +70,8 @@ public class ConversationTest {
     users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
     users.add(new User(UUID.randomUUID(), "Test_Name2", "Test_Hash2", Instant.now()));
 
-    Conversation conversation = new Conversation(id, owner, title, creation, users, ConversationType.DIRECT);
+    Conversation conversation = new Conversation(id, owner, title, creation,
+            ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 
     Assert.assertEquals(conversation.isNormalConversation(), false);
   }
@@ -82,10 +85,29 @@ public class ConversationTest {
     List<User> users = new ArrayList<>();
     users.add(new User(UUID.randomUUID(), "Test_Name", "Test_Hash", Instant.now()));
 
-    Conversation conversation = new Conversation(id, owner, title, creation, users, ConversationType.GROUP);
+    Conversation conversation = new Conversation(id, owner, title, creation,
+            ConversationHelper.getUsernamesFromUsers(users), ConversationType.GROUP);
 
     Assert.assertEquals(conversation.isUserInConversation("Test_Name"), true);
     Assert.assertEquals(conversation.isUserInConversation("Test_Name2"), false);
+  }
+
+  @Test
+  public void testGetDirectConversationTitle() {
+    UUID id = UUID.randomUUID();
+    UUID owner = UUID.randomUUID();
+    String title = "Test_Title";
+    Instant creation = Instant.now();
+    List<User> users = new ArrayList<>();
+    users.add(new User(UUID.randomUUID(), "Justin", "Test_Hash", Instant.now()));
+    users.add(new User(UUID.randomUUID(), "Cynthia", "Test_Hash2", Instant.now()));
+
+    Conversation conversation = new Conversation(id, owner, title, creation,
+            ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
+
+    // If logged in as Justin, the DM between Justin and Cynthia should have the title 'Cynthia', and vice versa
+    Assert.assertEquals("Cynthia", conversation.getDirectConversationTitle("Justin"));
+    Assert.assertEquals("Justin", conversation.getDirectConversationTitle("Cynthia"));
   }
 
 }

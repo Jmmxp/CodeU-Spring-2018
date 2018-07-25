@@ -75,7 +75,6 @@ public class ChatAddUserServlet extends HttpServlet {
         } else {
             conversation.addUser(newUser);
             request.getSession().setAttribute("addNewUserMessage", "Added new user to the conversation!");
-
         }
 
         response.sendRedirect("/chat/" + conversationTitle);
