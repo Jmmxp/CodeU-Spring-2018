@@ -135,6 +135,14 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
   		} %>
       <br/>
       <hr/>
+      <% if (request.getAttribute("addNewUserMessage") != null){ %>
+          <h2><%= request.getAttribute("addNewUserMessage") %></h2>
+      <% } %>
+
+      <h4 style="display: inline">Users: </h4>
+      <% for (String username : conversation.getUsers()) { %>
+          <%= username %>
+      <% } %>
     <% } else { %>
       <p><a href="/login">Login</a> to send a message.</p>
       <hr/>
@@ -142,9 +150,11 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 
     </div>
 
-	<% if (request.getAttribute("addNewUserMessage") != null){ %>
-        <h2><%= request.getAttribute("addNewUserMessage") %></h2>
-    <% } %>
+
+
+
+
+
 
   </div>
 
