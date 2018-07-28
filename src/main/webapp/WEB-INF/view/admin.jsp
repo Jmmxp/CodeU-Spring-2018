@@ -81,8 +81,6 @@ int numConversations = ConversationStore.getInstance().getNumConversations();
 			  <input type="submit" name="deleteMessagesButton" value="Delete All Messages" />
 			  <input type="submit" name="deleteConversationsButton" value="Delete All Conversations" />
 		  </form>
-          <p>Sorry, these buttons have been disabled for the Showcase! :)</p>
-
       <% } %>
 
     </div>

@@ -16,9 +16,8 @@ package codeu.model.store.basic;
 
 import codeu.model.data.User;
 import codeu.model.store.persistence.PersistentStorageAgent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+
+import java.util.*;
 
 /**
  * Store class that uses in-memory data structures to hold values and automatically loads from and
@@ -56,12 +55,12 @@ public class UserStore {
   private PersistentStorageAgent persistentStorageAgent;
 
   /** The in-memory list of Users. */
-  private List<User> users;
+  private Map<String, User> users;
 
   /** This class is a singleton, so its constructor is private. Call getInstance() instead. */
   private UserStore(PersistentStorageAgent persistentStorageAgent) {
     this.persistentStorageAgent = persistentStorageAgent;
-    users = new ArrayList<>();
+    users = new HashMap<>();
   }
 
   /**
@@ -70,13 +69,9 @@ public class UserStore {
    * @return null if username does not match any existing User.
    */
   public User getUser(String username) {
-    // This approach will be pretty slow if we have many users.
-    for (User user : users) {
-      if (user.getName().equals(username)) {
-        return user;
-      }
-    }
-    return null;
+    User user = users.get(username);
+    // user will be null if username was not found
+    return user;
   }
 
   /**
@@ -85,7 +80,7 @@ public class UserStore {
    * @return null if the UUID does not match any existing User.
    */
   public User getUser(UUID id) {
-    for (User user : users) {
+    for (User user : users.values()) {
       if (user.getId().equals(id)) {
         return user;
       }
@@ -98,7 +93,7 @@ public class UserStore {
    * to add a new user, not to update an existing user.
    */
   public void addUser(User user) {
-    users.add(user);
+    users.put(user.getName(), user);
     persistentStorageAgent.writeThrough(user);
   }
 
@@ -111,10 +106,8 @@ public class UserStore {
 
   /** Return true if the given username is known to the application. */
   public boolean isUserRegistered(String username) {
-    for (User user : users) {
-      if (user.getName().equals(username)) {
-        return true;
-      }
+    if (users.containsKey(username)) {
+      return true;
     }
     return false;
   }
@@ -124,7 +117,11 @@ public class UserStore {
    * is loaded from Datastore.
    */
   public void setUsers(List<User> users) {
-    this.users = users;
+    Map<String, User> userMap = new HashMap<>();
+    for (User user : users) {
+      userMap.put(user.getName(), user);
+    }
+    this.users = userMap;
   }
 
   public int getNumUsers() {
@@ -132,7 +129,7 @@ public class UserStore {
   }
 
   public void deleteAllUsers() {
-    persistentStorageAgent.deleteAllUsers(users);
+    persistentStorageAgent.deleteAllUsers(new ArrayList<>(users.values()));
     users.clear();
   }
 
