@@ -89,6 +89,14 @@ public class UserStore {
   }
 
   /**
+   * Returns a List of all users in the UserStore
+   * @return List of Users
+   */
+  public List<User> getUsers() {
+    return new ArrayList<>(users.values());
+  }
+
+  /**
    * Add a new user to the current set of users known to the application. This should only be called
    * to add a new user, not to update an existing user.
    */

@@ -16,6 +16,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="codeu.model.data.Conversation" %>
 <%@ page import="codeu.model.data.Message" %>
+<%@ page import="codeu.model.data.User" %>
 <%@ page import="codeu.model.store.basic.UserStore" %>
 <%@ page import="codeu.helper.AdminHelper"%>
 
@@ -101,7 +102,9 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
     <hr/>
 
     <% if (user != null) { %>
-    <form action="/chat/<%= conversation.getTitle() %>" method="POST">
+    <div>
+
+    <form action="/chat/<%= conversation.getTitle() %>" method="POST" style="float: left">
         <input type="text" name="message">
         <button type="submit" name="sendMessage">Send</button>
     </form>
@@ -112,17 +115,32 @@ List<Message> messages = (List<Message>) request.getAttribute("messages");
 		 	.getName();
 			if (user.equals(name)) {
 		%>
-	    <form action="/chat/add-user/<%= conversation.getTitle() %>" method="POST">
-	        <input type="text" name="newUser">
+
+		<% if (conversation.getNumUsers() != UserStore.getInstance().getNumUsers()) { %>
+	    <form action="/chat/add-user/<%= conversation.getTitle() %>" method="POST" style="float: right">
+	        <select name="newUser">
+	        <% List<User> users = UserStore.getInstance().getUsers();
+	           for (User currentUser : users) {
+	             String username = currentUser.getName();
+	             if (!conversation.isUserInConversation(username)) {
+	        %>
+	               <option value="<%= username %>"><%= username %></option>
+	        <%   }
+	           } %>
+	        </select>
 	        <button type="submit" name="addNewUser">Add User</button>
 	    </form>
+	    <% } %>
 	  <% }
   		} %>
+      <br/>
+      <hr/>
     <% } else { %>
       <p><a href="/login">Login</a> to send a message.</p>
+      <hr/>
     <% } %>
 
-    <hr/>
+    </div>
 
 	<% if (request.getAttribute("addNewUserMessage") != null){ %>
         <h2><%= request.getAttribute("addNewUserMessage") %></h2>
