@@ -117,6 +117,7 @@ public class ConversationStoreTest {
     Conversation conversation = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
             Instant.now(), ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);
 
+    users.remove(userTwo);
     users.add(userThree);
     Conversation conversationTwo = new Conversation(UUID.randomUUID(), UUID.randomUUID(), "testTitle",
             Instant.now(), ConversationHelper.getUsernamesFromUsers(users), ConversationType.DIRECT);

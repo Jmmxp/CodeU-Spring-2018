@@ -18,9 +18,7 @@ import codeu.model.store.basic.ConversationStore;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Class representing a conversation, which can be thought of as a chat room. Conversations are
@@ -31,7 +29,7 @@ public class Conversation {
   public final UUID owner;
   public final Instant creation;
   public final String title;
-  public final List<String> users;
+  public final Set<String> users;
   public final ConversationType conversationType;
 
   public enum ConversationType {
@@ -51,7 +49,7 @@ public class Conversation {
     this.owner = owner;
     this.creation = creation;
     this.title = title;
-    this.users = new ArrayList<>();
+    this.users = new HashSet<>();
     this.conversationType = ConversationType.NORMAL;
   }
 
@@ -65,31 +63,13 @@ public class Conversation {
    * @param users the Users or user names that will be able to access and chat in this conversation
    * @param conversationType the type of Conversation
    */
-  public Conversation(UUID id, UUID owner, String title, Instant creation, List<?> users,
+  public Conversation(UUID id, UUID owner, String title, Instant creation, List<String> users,
                       ConversationType conversationType) {
     this.id = id;
     this.owner = owner;
     this.creation = creation;
     this.title = title;
-
-    // Check if list of Users or Strings was given
-    if (users.size() != 0) {
-      if (users.get(0) instanceof User) {
-        List<String> usernames = new ArrayList<>();
-        for (User user : (List<User>) users) {
-          usernames.add(user.getName());
-        }
-        this.users = usernames;
-      } else if (users.get(0) instanceof String) {
-        this.users = (List<String>) users;
-      } else {
-        throw new IllegalArgumentException("Users list should be of type User or String!");
-      }
-    } else {
-      this.users = new ArrayList<>();
-    }
-
-
+    this.users = new HashSet<>(users);
     this.conversationType = conversationType;
   }
 
@@ -115,7 +95,7 @@ public class Conversation {
 
   /** Returns the list of usernames that can access and chat in this Conversation */
   public List<String> getUsers() {
-    return users;
+    return new ArrayList<>(users);
   }
 
   /** Returns the number of users that can access and chat in this Conversation*/
@@ -175,7 +155,7 @@ public class Conversation {
       return false;
     }
 
-    if (users.indexOf(username) != -1) {
+    if (users.contains(username)) {
       // the user exists in the users list
       return true;
     }
@@ -195,8 +175,9 @@ public class Conversation {
       return title;
     }
 
-    String userOne = users.get(0);
-    String userTwo = users.get(1);
+    List<String> userList = new ArrayList<>(users);
+    String userOne = userList.get(0);
+    String userTwo = userList.get(1);
     if (currentUser.equals(userOne)) {
       return userTwo;
     } else if (currentUser.equals(userTwo)) {

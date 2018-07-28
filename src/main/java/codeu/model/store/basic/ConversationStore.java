@@ -98,7 +98,6 @@ public class ConversationStore {
 
   /** Find and return a List of Conversations that the user is able to access and chat in */
   public List<Conversation> getConversationsForUser(String username) {
-    // TODO: decide whether or not this is needed (currently filtering conversations in conversations.jsp)
     List<Conversation> userConversations = new ArrayList<>();
 
     for (Conversation conversation : conversations) {
